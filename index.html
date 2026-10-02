@@ -1,0 +1,1826 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#C93F2A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Polyglotte">
+<meta name="description" content="Japonais, coréen, chinois et anglais : vocabulaire, phrases de voyage, dialogues, grammaire, cartes et quiz.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Polyglotte de poche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600&family=Noto+Serif+KR:wght@600&family=Noto+Serif+SC:wght@600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one-column phone app — sticky header with the 4-language switch, fixed bottom tab bar.
+   Signature: words sit in 田字格 practice squares (dashed cross), English on copybook lines.
+   The accent recolours per language: 朱 vermilion (ja), 청 blue (ko), 玉 jade (zh), ochre (en). */
+:root{
+  --bg:#ECEFF4; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#141A2A; --muted:#566077; --line:#D6DBE5; --chip:#E3E7EF;
+  --good:#1D8049; --bad:#C23A2C; --good-soft:#E1F2E8; --bad-soft:#FBE6E3;
+  --ja:#C93F2A; --ko:#2A57C8; --zh:#0D7D5F; --en:#A55B14;
+  --on-acc:#FFFFFF;
+  --shadow:0 1px 2px rgba(20,26,42,.06),0 6px 18px rgba(20,26,42,.07);
+  --f-ui:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-ja:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-ko:"Noto Serif KR","AppleMyungjo","Batang",serif;
+  --f-zh:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --radius:16px; --radius-s:11px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1119; --surface:#171C28; --surface-2:#1E2431; --ink:#E8EBF3; --muted:#9AA3B8; --line:#2A3142; --chip:#252C3B;
+    --good:#57C98C; --bad:#FF8073; --good-soft:#15301F; --bad-soft:#3A1D1A;
+    --ja:#FF7C64; --ko:#89AAFF; --zh:#4DCFA3; --en:#F0A75E;
+    --on-acc:#0E1119; --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 22px rgba(0,0,0,.28);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1119; --surface:#171C28; --surface-2:#1E2431; --ink:#E8EBF3; --muted:#9AA3B8; --line:#2A3142; --chip:#252C3B;
+  --good:#57C98C; --bad:#FF8073; --good-soft:#15301F; --bad-soft:#3A1D1A;
+  --ja:#FF7C64; --ko:#89AAFF; --zh:#4DCFA3; --en:#F0A75E;
+  --on-acc:#0E1119; --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 22px rgba(0,0,0,.28);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
+:focus-visible{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.015em}
+p{margin:0}
+
+.app{--acc:var(--ja);--acc-soft:color-mix(in srgb,var(--acc) 12%,var(--surface));--acc-line:color-mix(in srgb,var(--acc) 42%,transparent);--acc-faint:color-mix(in srgb,var(--acc) 22%,transparent);
+  max-width:560px;margin:0 auto;padding-inline:16px;padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.app[data-lang="ko"]{--acc:var(--ko)}
+.app[data-lang="zh"]{--acc:var(--zh)}
+.app[data-lang="en"]{--acc:var(--en)}
+
+.tx-ja{font-family:var(--f-ja)} .tx-ko{font-family:var(--f-ko)} .tx-zh{font-family:var(--f-zh)} .tx-en{font-family:var(--f-ui)}
+.tx{font-weight:600}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;margin-inline:-16px;padding:10px 16px 10px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.seal{width:30px;height:30px;border-radius:7px;background:var(--acc);color:var(--on-acc);display:grid;place-items:center;font-family:var(--f-ja);font-weight:600;font-size:18px;transform:rotate(-5deg);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--on-acc) 30%,transparent);flex:none;transition:background .25s}
+.brand-name{font-weight:800;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.brand-name span{font-weight:500;color:var(--muted)}
+.brand-xp{margin-left:auto;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;display:flex;gap:10px}
+.brand-xp b{color:var(--ink);font-weight:700}
+.langs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lang-btn{display:flex;flex-direction:column;align-items:center;padding:6px 2px 5px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);min-width:0;transition:border-color .2s,background .2s}
+.lang-btn .n{font-size:16px;font-weight:600;line-height:1.3;white-space:nowrap}
+.lang-btn small{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;font-weight:600}
+.lang-btn[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 13%,var(--surface))}
+.lang-btn[aria-pressed="true"] small{color:var(--c)}
+
+/* Bottom tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 9px;font-size:11.5px;font-weight:600;color:var(--muted);text-align:center}
+.tab .ic{width:23px;height:23px}
+.tab[aria-current="page"]{color:var(--acc)}
+
+.view{display:flex;flex-direction:column;gap:22px;padding-top:16px}
+
+/* Generic */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.eyebrow{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.sec h2{font-size:19px;font-weight:800}
+.sec span{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;font-weight:700;background:var(--chip);color:var(--ink);transition:transform .08s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--acc);color:var(--on-acc)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.btn.small{min-height:36px;padding:7px 13px;font-size:13.5px;border-radius:10px}
+.btn.block{width:100%}
+.btn.good{background:var(--good);color:var(--on-acc)}
+.btn.bad{background:var(--bad-soft);color:var(--bad)}
+.badge{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 7px;border-radius:11px;background:color-mix(in srgb,var(--on-acc) 22%,transparent);font-size:12.5px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:7px 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+.chip[aria-pressed="true"]{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+.pbar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--acc);border-radius:4px;transition:width .4s}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:var(--radius-s);background:var(--acc-soft);font-size:14px;line-height:1.5}
+.note b{color:var(--acc)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);flex:none}
+.say{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);flex:none}
+.say .ic{width:19px;height:19px}
+
+/* 田字格 cells */
+.cells{display:flex;justify-content:center}
+.cell{--c:96px;width:var(--c);height:var(--c);position:relative;display:grid;place-items:center;border:1.5px solid var(--acc-line);margin-left:-1.5px;font-size:calc(var(--c) * .66);line-height:1;background:var(--surface);flex:none}
+.cell:first-child{margin-left:0}
+.cell::before,.cell::after{content:"";position:absolute;pointer-events:none}
+.cell::before{left:0;right:0;top:50%;border-top:1px dashed var(--acc-faint)}
+.cell::after{top:0;bottom:0;left:50%;border-left:1px dashed var(--acc-faint)}
+.cell>span{position:relative;z-index:1;font-weight:600}
+.copy{display:inline-block;padding:.05em .35em .12em;line-height:1.25;font-weight:600;
+  background:
+    linear-gradient(var(--acc-line),var(--acc-line)) 0 84%/100% 1.5px no-repeat,
+    repeating-linear-gradient(to right,var(--acc-faint) 0 6px,transparent 6px 11px) 0 52%/100% 1px no-repeat,
+    linear-gradient(var(--acc-faint),var(--acc-faint)) 0 16%/100% 1px no-repeat}
+.bigtext{font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;text-wrap:balance}
+
+/* Home */
+.hero{display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow)}
+.hero-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hero-greet{display:flex;flex-direction:column;gap:2px;min-width:0}
+.greet{display:inline-flex;align-items:center;gap:8px;font-size:26px;line-height:1.25;color:var(--ink)}
+.greet .ic{color:var(--acc)}
+.rom{font-size:13.5px;color:var(--muted)}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats3 div{display:flex;flex-direction:column;padding:10px 12px;border-radius:var(--radius-s);background:var(--surface-2)}
+.stats3 b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.stats3 span{font-size:12px;color:var(--muted)}
+.goal{display:flex;flex-direction:column;gap:6px}
+.goal-l{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+.goal-l span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
+
+.write-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left}
+.write-card .wg{font-size:30px;color:var(--acc);width:64px;height:64px;flex:none}
+.write-card .wg .cell{--c:64px}
+.write-card h3{font-size:16px;font-weight:700}
+.write-card p{font-size:13px;color:var(--muted)}
+.write-card .ic{margin-left:auto;color:var(--muted)}
+
+.grp{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--acc);margin:18px 0 8px}
+.sec+.grp{margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);min-width:0;text-align:left}
+.tile-glyph{font-size:25px;line-height:1.25;color:var(--acc);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile-name{font-weight:700;font-size:15px;line-height:1.3}
+.tile-meta{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:var(--acc-soft);color:var(--acc)}
+.mini{height:4px;border-radius:2px;background:var(--chip);width:100%;overflow:hidden;margin-top:7px}
+.mini i{display:block;height:100%;background:var(--acc)}
+
+.navlist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.navlist li+li{border-top:1px solid var(--line)}
+.navitem{display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;text-align:left}
+.navitem .k{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);font-weight:800;font-size:14px;flex:none;font-variant-numeric:tabular-nums}
+.navitem .t{display:flex;flex-direction:column;min-width:0;flex:1}
+.navitem .t b{font-weight:700;font-size:15px;line-height:1.35}
+.navitem .t span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.navitem>.ic{color:var(--muted)}
+
+.emerg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}
+.emerg div{padding:10px 12px;border-radius:var(--radius-s);background:var(--surface-2)}
+.emerg b{display:block;font-size:24px;font-weight:800;color:var(--bad);font-variant-numeric:tabular-nums;line-height:1.2;user-select:all}
+.emerg span{font-size:12.5px;color:var(--muted)}
+
+/* Sub screens */
+.subhead{display:flex;align-items:center;gap:12px}
+.subhead h2{font-size:22px;font-weight:800;line-height:1.2}
+.subhead p{font-size:13px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions .btn{flex:1}
+
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:11px 14px;cursor:pointer}
+.row+.row{border-top:1px solid var(--line)}
+.row-w{font-size:21px;line-height:1.3;overflow-wrap:anywhere}
+.row-r{font-size:13px;color:var(--muted);line-height:1.4}
+.row-fr{font-size:14px;text-align:right;max-width:9.5em;line-height:1.35}
+.row.stack{grid-template-columns:auto minmax(0,1fr) auto}
+.row.stack .row-w{font-size:18px}
+.row.stack .row-fr{text-align:left;max-width:none;margin-top:3px;color:var(--ink)}
+.lvl{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+.lvl.l1{border-color:var(--acc);background:linear-gradient(90deg,var(--acc) 50%,transparent 50%)}
+.lvl.l2{border-color:var(--acc);background:var(--acc)}
+
+/* Dialogue */
+.dlg-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dlg-tools .btn{margin-left:auto}
+.dlg{display:flex;flex-direction:column;gap:10px}
+.bubble{position:relative;max-width:88%;padding:10px 14px 11px;border-radius:16px;display:flex;flex-direction:column;gap:3px;transition:box-shadow .2s}
+.bubble.them{align-self:flex-start;background:var(--acc-soft);border-bottom-left-radius:5px}
+.bubble.me{align-self:flex-end;background:var(--surface);border:1px solid var(--line);border-bottom-right-radius:5px}
+.bubble.speaking{box-shadow:0 0 0 2.5px var(--acc)}
+.who{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.who .say{width:30px;height:30px;background:var(--surface)}
+.bubble.me .who .say{background:var(--acc-soft)}
+.who .say .ic{width:16px;height:16px}
+.b-tx{font-size:19px;line-height:1.45}
+.b-rom{font-size:13px;color:var(--muted)}
+.b-fr{font-size:14px;line-height:1.4;padding-top:4px;margin-top:2px;border-top:1px dashed var(--acc-faint)}
+.pager{display:flex;gap:8px;justify-content:space-between}
+.pager .btn{flex:1}
+
+/* Grammar */
+.lesson h2{font-size:22px;font-weight:800;line-height:1.25;margin-bottom:10px}
+.lesson .expl{font-size:15.5px;line-height:1.6;max-width:65ch}
+.pattern{margin-top:14px;padding:14px;border-radius:var(--radius-s);border:1.5px dashed var(--acc-line);font-size:19px;text-align:center;line-height:1.5}
+.ex{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ex li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:12px 0}
+.ex li+li{border-top:1px solid var(--line)}
+.ex .e1{font-size:19px;line-height:1.4}
+.ex .e2{font-size:13px;color:var(--muted)}
+.ex .e3{font-size:14px}
+
+/* Writing */
+.kana-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.kana{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:8px 2px 6px;border-radius:10px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.kana .g{font-size:26px;line-height:1.2}
+.kana small{font-size:12px;color:var(--muted);font-weight:600}
+.kana.empty{background:transparent;border:1px dashed var(--line)}
+.jamo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.builder{display:flex;flex-direction:column;gap:12px}
+.builder .res{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.builder .res .cell{--c:96px}
+.builder .lab{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.jchips{display:flex;flex-wrap:wrap;gap:5px}
+.jchip{min-width:40px;height:40px;padding:0 8px;border-radius:10px;background:var(--surface);border:1.5px solid var(--line);font-size:19px;font-family:var(--f-ko);font-weight:600}
+.jchip[aria-pressed="true"]{border-color:var(--acc);background:var(--acc-soft);color:var(--acc)}
+.tones{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tone-card{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:var(--radius-s);background:var(--surface);border:1px solid var(--line);text-align:left}
+.tone-card .tc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tone-card .tc-p{font-size:22px;font-weight:700}
+.tone-card .tc-c{font-size:26px}
+.tone-card p{font-size:13px;color:var(--muted);line-height:1.4}
+.tone{width:60px;height:42px;flex:none}
+.tone .tl{stroke:var(--line);stroke-width:1}
+.tone .tp{fill:none;stroke:var(--acc);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.tone .td{fill:var(--acc)}
+.chars{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.charc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:var(--radius-s);background:var(--surface);border:1px solid var(--line)}
+.charc .cell{--c:62px}
+.charc small{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.3}
+.charc b{font-size:14px}
+.tips{display:flex;flex-direction:column;gap:10px}
+.tipc h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.tipc p{font-size:14px;line-height:1.5;color:var(--muted);max-width:65ch}
+.tipc .chips{margin-top:10px}
+.tipc .chip{color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.tipc .chip .ic{width:15px;height:15px;color:var(--acc)}
+
+/* Sessions */
+.session-top{display:flex;align-items:center;gap:12px}
+.session-top .pbar{flex:1}
+.session-top .cnt{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.flash{min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 16px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-align:center;cursor:pointer;position:relative}
+.flash .hint{position:absolute;top:12px;left:14px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.flash .fr-big{font-size:28px;font-weight:700;line-height:1.3;text-wrap:balance}
+.flash .reading{font-size:15px;color:var(--muted)}
+.flash .meaning{font-size:19px;font-weight:600}
+.flash.turn{animation:turn .32s ease}
+@keyframes turn{from{transform:perspective(900px) rotateY(80deg);opacity:.3}to{transform:none;opacity:1}}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grade .btn{min-height:52px}
+.setup-hero{display:flex;flex-direction:column;gap:12px}
+.setup-hero h2{font-size:22px;font-weight:800}
+.setup-hero p{color:var(--muted);font-size:14px}
+.dirs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dir{padding:12px;border-radius:var(--radius-s);border:1.5px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:2px}
+.dir b{font-size:15px}
+.dir span{font-size:12.5px;color:var(--muted)}
+.dir[aria-pressed="true"]{border-color:var(--acc);background:var(--acc-soft)}
+
+.prompt{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);text-align:center;min-height:200px;justify-content:center}
+.prompt .q{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bigplay{width:92px;height:92px;border-radius:50%;background:var(--acc);color:var(--on-acc);display:grid;place-items:center}
+.bigplay .ic{width:40px;height:40px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;flex-direction:column;gap:1px;padding:13px 16px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-size:16px;font-weight:600;text-align:left;min-height:52px;justify-content:center}
+.opt .o-tx{font-size:20px;line-height:1.35}
+.opt small{font-size:12.5px;color:var(--muted);font-weight:500}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.ko{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.opt[disabled]:not(.ok):not(.ko){opacity:.55}
+.fb{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:14px}
+.fb.ok{background:var(--good-soft)}
+.fb.ko{background:var(--bad-soft)}
+.fb .fb-h{font-weight:800;font-size:15px}
+.fb.ok .fb-h{color:var(--good)} .fb.ko .fb-h{color:var(--bad)}
+.fb .fb-w{display:flex;align-items:center;gap:10px}
+.fb .fb-w .tx{font-size:22px}
+.result{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:26px 16px}
+.result .score{font-size:64px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--acc)}
+.result .score small{font-size:28px;color:var(--muted)}
+.result p{color:var(--muted);max-width:32ch}
+
+/* Progress */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px;margin-top:6px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.wd .bar{width:100%;max-width:30px;border-radius:6px 6px 3px 3px;background:var(--acc);min-height:3px}
+.wd .bar.zero{background:var(--chip)}
+.wd .bar.today{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--acc)}
+.wd small{font-size:11.5px;color:var(--muted);font-weight:600}
+.wd .v{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.langrow{display:flex;flex-direction:column;gap:8px;padding:14px 0}
+.langrow+.langrow{border-top:1px solid var(--line)}
+.langrow .lh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.langrow .lh b{font-size:16px}
+.langrow .lh span{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.seg{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--chip)}
+.seg i{display:block;height:100%}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.setting{display:flex;flex-direction:column;gap:8px;padding:12px 0}
+.setting+.setting{border-top:1px solid var(--line)}
+.setting .sl{font-weight:700;font-size:14.5px}
+.setting .sd{font-size:13px;color:var(--muted)}
+.voices{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.voices li{display:flex;align-items:center;gap:10px}
+.voices li .vn{flex:1;min-width:0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voices li .vn b{color:var(--ink);font-size:14px;margin-right:6px}
+.voices .okv{color:var(--good)} .voices .kov{color:var(--bad)}
+.danger{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:min(92vw,440px);padding:10px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;box-shadow:var(--shadow);animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+
+@media (max-width:380px){
+  .row{grid-template-columns:auto minmax(0,1fr) auto}
+  .row .lvl{display:none}
+  .row-fr{max-width:7.5em;font-size:13.5px}
+  .lang-btn .n{font-size:14px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.app::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--acc) 82%,#000);z-index:30}
+</style>
+</head>
+<body>
+<div class="app" id="app" data-lang="ja">
+  <header class="top" id="top"></header>
+  <main class="view" id="view" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" aria-label="Navigation principale"></nav>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= LANGUES ================= */
+const LANGS={
+  ja:{name:"Japonais",native:"日本語",bcp:"ja-JP",html:"ja",L:"japonais",rom:"rōmaji"},
+  ko:{name:"Coréen",native:"한국어",bcp:"ko-KR",html:"ko",L:"coréen",rom:"romanisation"},
+  zh:{name:"Chinois",native:"中文",bcp:"zh-CN",html:"zh-CN",L:"chinois",rom:"pinyin"},
+  en:{name:"Anglais",native:"English",bcp:"en-US",html:"en",L:"anglais",rom:""}
+};
+const ORDER=["ja","ko","zh","en"];
+const GREET={
+  ja:{w:"こんにちは",rom:"konnichiwa"},
+  ko:{w:"안녕하세요",rom:"annyeonghaseyo"},
+  zh:{w:"你好",rom:"nǐ hǎo"},
+  en:{w:"Hello!",rom:""}
+};
+
+/* ================= VOCABULAIRE =================
+   fr | ja (écrit) | ja kana | rōmaji | coréen | romanisation | chinois | pinyin | anglais */
+const THEMES=[
+{id:"bases",name:"Les bases",travel:false,note:{},data:`
+bonjour|こんにちは||konnichiwa|안녕하세요|annyeonghaseyo|你好|nǐ hǎo|hello
+bonjour (le matin)|おはようございます||ohayō gozaimasu|좋은 아침이에요|joeun achimieyo|早上好|zǎoshang hǎo|good morning
+bonsoir|こんばんは||konbanwa|좋은 저녁이에요|joeun jeonyeogieyo|晚上好|wǎnshang hǎo|good evening
+au revoir|さようなら||sayōnara|안녕히 가세요|annyeonghi gaseyo|再见|zàijiàn|goodbye
+merci|ありがとうございます||arigatō gozaimasu|감사합니다|gamsahamnida|谢谢|xièxie|thank you
+de rien|どういたしまして||dō itashimashite|천만에요|cheonmaneyo|不客气|bú kèqi|you're welcome
+excusez-moi|すみません||sumimasen|실례합니다|sillyehamnida|不好意思|bù hǎoyìsi|excuse me
+pardon, désolé(e)|ごめんなさい||gomen nasai|죄송합니다|joesonghamnida|对不起|duìbuqǐ|I'm sorry
+oui|はい||hai|네|ne|是的|shì de|yes
+non|いいえ||iie|아니요|aniyo|不是|bú shì|no
+s’il vous plaît|お願いします|おねがいします|onegai shimasu|부탁합니다|butakamnida|请|qǐng|please
+enchanté(e)|はじめまして||hajimemashite|반갑습니다|bangapseumnida|很高兴认识你|hěn gāoxìng rènshi nǐ|nice to meet you
+comment allez-vous ?|お元気ですか|おげんきですか|o-genki desu ka|잘 지내요?|jal jinaeyo?|你好吗？|nǐ hǎo ma?|how are you?
+je vais bien|元気です|げんきです|genki desu|네, 잘 지내요|ne, jal jinaeyo|我很好|wǒ hěn hǎo|I'm fine
+d’accord, compris|分かりました|わかりました|wakarimashita|알겠습니다|algetseumnida|好的|hǎo de|okay, got it
+je ne comprends pas|分かりません|わかりません|wakarimasen|이해가 안 돼요|ihaega an dwaeyo|我不懂|wǒ bù dǒng|I don't understand
+`},
+{id:"nombres",name:"Nombres",travel:false,note:{
+  ja:"4 et 7 ont deux lectures : よん / し et なな / しち. On préfère よん et なな, car し rappelle le mot « mort ».",
+  ko:"Le coréen a deux séries : les chiffres natifs (하나, 둘…) pour compter les objets et dire l’heure, les chiffres sino-coréens (일, 이…) pour les prix, les minutes et les dates.",
+  zh:"Devant un classificateur, « deux » se dit 两 (liǎng) : 两个人, deux personnes. Les grands nombres se comptent par 万 (10 000)."},data:`
+0 · zéro|ゼロ||zero|영 / 공|yeong / gong|零|líng|zero
+1 · un|一|いち|ichi|하나 / 일|hana / il|一|yī|one
+2 · deux|二|に|ni|둘 / 이|dul / i|二|èr|two
+3 · trois|三|さん|san|셋 / 삼|set / sam|三|sān|three
+4 · quatre|四|よん|yon|넷 / 사|net / sa|四|sì|four
+5 · cinq|五|ご|go|다섯 / 오|daseot / o|五|wǔ|five
+6 · six|六|ろく|roku|여섯 / 육|yeoseot / yuk|六|liù|six
+7 · sept|七|なな|nana|일곱 / 칠|ilgop / chil|七|qī|seven
+8 · huit|八|はち|hachi|여덟 / 팔|yeodeol / pal|八|bā|eight
+9 · neuf|九|きゅう|kyū|아홉 / 구|ahop / gu|九|jiǔ|nine
+10 · dix|十|じゅう|jū|열 / 십|yeol / sip|十|shí|ten
+100 · cent|百|ひゃく|hyaku|백|baek|一百|yìbǎi|one hundred
+1 000 · mille|千|せん|sen|천|cheon|一千|yìqiān|one thousand
+10 000 · dix mille|一万|いちまん|ichiman|만|man|一万|yíwàn|ten thousand
+`},
+{id:"temps",name:"Temps & jours",travel:false,note:{},data:`
+aujourd’hui|今日|きょう|kyō|오늘|oneul|今天|jīntiān|today
+demain|明日|あした|ashita|내일|naeil|明天|míngtiān|tomorrow
+hier|昨日|きのう|kinō|어제|eoje|昨天|zuótiān|yesterday
+maintenant|今|いま|ima|지금|jigeum|现在|xiànzài|now
+matin|朝|あさ|asa|아침|achim|早上|zǎoshang|morning
+soir|夕方|ゆうがた|yūgata|저녁|jeonyeok|傍晚|bàngwǎn|evening
+nuit|夜|よる|yoru|밤|bam|晚上|wǎnshang|night
+… heure(s)|時|じ|ji|시|si|点|diǎn|o'clock
+minute|分|ふん|fun|분|bun|分钟|fēnzhōng|minute
+jour|日|ひ|hi|날|nal|天|tiān|day
+semaine|週|しゅう|shū|주|ju|星期|xīngqī|week
+mois|月|つき|tsuki|달|dal|月|yuè|month
+année|年|とし|toshi|해|hae|年|nián|year
+lundi|月曜日|げつようび|getsuyōbi|월요일|woryoil|星期一|xīngqīyī|Monday
+mardi|火曜日|かようび|kayōbi|화요일|hwayoil|星期二|xīngqī'èr|Tuesday
+mercredi|水曜日|すいようび|suiyōbi|수요일|suyoil|星期三|xīngqīsān|Wednesday
+jeudi|木曜日|もくようび|mokuyōbi|목요일|mogyoil|星期四|xīngqīsì|Thursday
+vendredi|金曜日|きんようび|kin'yōbi|금요일|geumyoil|星期五|xīngqīwǔ|Friday
+samedi|土曜日|どようび|doyōbi|토요일|toyoil|星期六|xīngqīliù|Saturday
+dimanche|日曜日|にちようび|nichiyōbi|일요일|iryoil|星期天|xīngqītiān|Sunday
+`},
+{id:"personnes",name:"Personnes & famille",travel:false,note:{},data:`
+je, moi|私|わたし|watashi|저|jeo|我|wǒ|I, me
+tu, vous|あなた||anata|당신|dangsin|你|nǐ|you
+il|彼|かれ|kare|그|geu|他|tā|he
+elle|彼女|かのじょ|kanojo|그녀|geunyeo|她|tā|she
+nous|私たち|わたしたち|watashitachi|우리|uri|我们|wǒmen|we
+ami(e)|友達|ともだち|tomodachi|친구|chingu|朋友|péngyou|friend
+famille|家族|かぞく|kazoku|가족|gajok|家人|jiārén|family
+père|お父さん|おとうさん|otōsan|아버지|abeoji|爸爸|bàba|father
+mère|お母さん|おかあさん|okāsan|어머니|eomeoni|妈妈|māma|mother
+enfant|子ども|こども|kodomo|아이|ai|孩子|háizi|child
+homme|男の人|おとこのひと|otoko no hito|남자|namja|男人|nánrén|man
+femme|女の人|おんなのひと|onna no hito|여자|yeoja|女人|nǚrén|woman
+nom, prénom|名前|なまえ|namae|이름|ireum|名字|míngzi|name
+étudiant(e)|学生|がくせい|gakusei|학생|haksaeng|学生|xuésheng|student
+France|フランス||furansu|프랑스|peurangseu|法国|Fǎguó|France
+Français(e)|フランス人|フランスじん|furansu-jin|프랑스 사람|peurangseu saram|法国人|Fǎguórén|French (person)
+`},
+{id:"nourriture",name:"Nourriture & boissons",travel:false,note:{},data:`
+eau|水|みず|mizu|물|mul|水|shuǐ|water
+thé|お茶|おちゃ|ocha|차|cha|茶|chá|tea
+café|コーヒー||kōhī|커피|keopi|咖啡|kāfēi|coffee
+bière|ビール||bīru|맥주|maekju|啤酒|píjiǔ|beer
+lait|牛乳|ぎゅうにゅう|gyūnyū|우유|uyu|牛奶|niúnǎi|milk
+riz (cuit)|ご飯|ごはん|gohan|밥|bap|米饭|mǐfàn|rice
+pain|パン||pan|빵|ppang|面包|miànbāo|bread
+nouilles|麺|めん|men|국수|guksu|面条|miàntiáo|noodles
+viande|肉|にく|niku|고기|gogi|肉|ròu|meat
+poulet|鶏肉|とりにく|toriniku|닭고기|dakgogi|鸡肉|jīròu|chicken
+porc|豚肉|ぶたにく|butaniku|돼지고기|dwaejigogi|猪肉|zhūròu|pork
+bœuf|牛肉|ぎゅうにく|gyūniku|소고기|sogogi|牛肉|niúròu|beef
+poisson|魚|さかな|sakana|생선|saengseon|鱼|yú|fish
+œuf|卵|たまご|tamago|계란|gyeran|鸡蛋|jīdàn|egg
+légumes|野菜|やさい|yasai|채소|chaeso|蔬菜|shūcài|vegetables
+fruits|果物|くだもの|kudamono|과일|gwail|水果|shuǐguǒ|fruit
+`},
+{id:"restaurant",name:"Au restaurant",travel:true,note:{
+  ja:"いただきます se dit avant de manger, ごちそうさまでした après le repas.",
+  ko:"잘 먹겠습니다 se dit avant le repas, 잘 먹었습니다 après. Pour appeler le serveur : 저기요 !",
+  zh:"请慢用 (« mangez lentement ») est ce que dit le serveur en posant les plats.",
+  en:"Aux États-Unis, on dit « the check » ; au Royaume-Uni, « the bill »."},data:`
+restaurant|レストラン||resutoran|식당|sikdang|餐厅|cāntīng|restaurant
+menu, carte|メニュー||menyū|메뉴|menyu|菜单|càidān|menu
+l’addition|お会計|おかいけい|o-kaikei|계산서|gyesanseo|账单|zhàngdān|the bill
+serveur, serveuse|店員さん|てんいんさん|ten'in-san|직원|jigwon|服务员|fúwùyuán|server
+baguettes|箸|はし|hashi|젓가락|jeotgarak|筷子|kuàizi|chopsticks
+cuillère|スプーン||supūn|숟가락|sutgarak|勺子|sháozi|spoon
+fourchette|フォーク||fōku|포크|pokeu|叉子|chāzi|fork
+épicé|辛い|からい|karai|맵다|maepda|辣|là|spicy
+végétarien(ne)|ベジタリアン||bejitarian|채식주의자|chaesikjuuija|素食者|sùshízhě|vegetarian
+allergie|アレルギー||arerugī|알레르기|allereugi|过敏|guòmǐn|allergy
+à emporter|持ち帰り|もちかえり|mochikaeri|포장|pojang|打包|dǎbāo|to go, takeaway
+bon appétit|いただきます||itadakimasu|잘 먹겠습니다|jal meokgetseumnida|请慢用|qǐng mànyòng|enjoy your meal
+c’était délicieux|ごちそうさまでした||gochisōsama deshita|잘 먹었습니다|jal meogeotseumnida|很好吃|hěn hǎochī|it was delicious
+`},
+{id:"transport",name:"Transports",travel:true,note:{},data:`
+gare|駅|えき|eki|역|yeok|火车站|huǒchēzhàn|station
+train|電車|でんしゃ|densha|기차|gicha|火车|huǒchē|train
+métro|地下鉄|ちかてつ|chikatetsu|지하철|jihacheol|地铁|dìtiě|subway, underground
+bus|バス||basu|버스|beoseu|公交车|gōngjiāochē|bus
+taxi|タクシー||takushī|택시|taeksi|出租车|chūzūchē|taxi
+avion|飛行機|ひこうき|hikōki|비행기|bihaenggi|飞机|fēijī|plane
+aéroport|空港|くうこう|kūkō|공항|gonghang|机场|jīchǎng|airport
+billet, ticket|切符|きっぷ|kippu|표|pyo|票|piào|ticket
+passeport|パスポート||pasupōto|여권|yeogwon|护照|hùzhào|passport
+bagages|荷物|にもつ|nimotsu|짐|jim|行李|xíngli|luggage
+quai, voie|ホーム||hōmu|승강장|seunggangjang|站台|zhàntái|platform
+sortie|出口|でぐち|deguchi|출구|chulgu|出口|chūkǒu|exit
+entrée|入口|いりぐち|iriguchi|입구|ipgu|入口|rùkǒu|entrance
+départ|出発|しゅっぱつ|shuppatsu|출발|chulbal|出发|chūfā|departure
+arrivée|到着|とうちゃく|tōchaku|도착|dochak|到达|dàodá|arrival
+aller simple|片道|かたみち|katamichi|편도|pyeondo|单程|dānchéng|one-way, single
+aller-retour|往復|おうふく|ōfuku|왕복|wangbok|往返|wǎngfǎn|round trip, return
+`},
+{id:"hotel",name:"Hôtel",travel:true,note:{
+  ja:"Au Japon, le 1階 (1er étage) est le rez-de-chaussée.",
+  ko:"En Corée, le 1층 (1er étage) est le rez-de-chaussée.",
+  zh:"En Chine, le 一楼 (1er étage) est le rez-de-chaussée.",
+  en:"Aux États-Unis, le « first floor » est le rez-de-chaussée ; au Royaume-Uni, c’est le « ground floor »."},data:`
+hôtel|ホテル||hoteru|호텔|hotel|酒店|jiǔdiàn|hotel
+réservation|予約|よやく|yoyaku|예약|yeyak|预订|yùdìng|reservation
+chambre|部屋|へや|heya|방|bang|房间|fángjiān|room
+clé|鍵|かぎ|kagi|열쇠|yeolsoe|钥匙|yàoshi|key
+lit|ベッド||beddo|침대|chimdae|床|chuáng|bed
+toilettes|トイレ||toire|화장실|hwajangsil|洗手间|xǐshǒujiān|restroom, toilet
+douche|シャワー||shawā|샤워|syawo|淋浴|línyù|shower
+serviette|タオル||taoru|수건|sugeon|毛巾|máojīn|towel
+wifi|ワイファイ||waifai|와이파이|waipai|无线网|wúxiànwǎng|Wi-Fi
+mot de passe|パスワード||pasuwādo|비밀번호|bimilbeonho|密码|mìmǎ|password
+petit-déjeuner|朝ご飯|あさごはん|asagohan|아침 식사|achim siksa|早餐|zǎocān|breakfast
+check-in|チェックイン||chekkuin|체크인|chekeuin|入住|rùzhù|check-in
+check-out|チェックアウト||chekkuauto|체크아웃|chekeuaut|退房|tuìfáng|check-out
+climatisation|エアコン||eakon|에어컨|eeokeon|空调|kōngtiáo|air conditioning
+étage|階|かい|kai|층|cheung|楼|lóu|floor
+`},
+{id:"lieux",name:"En ville & directions",travel:true,note:{},data:`
+droite|右|みぎ|migi|오른쪽|oreunjjok|右边|yòubian|right
+gauche|左|ひだり|hidari|왼쪽|oenjjok|左边|zuǒbian|left
+tout droit|まっすぐ||massugu|똑바로|ttokbaro|一直走|yìzhí zǒu|straight ahead
+ici|ここ||koko|여기|yeogi|这里|zhèlǐ|here
+là-bas|あそこ||asoko|저기|jeogi|那里|nàlǐ|over there
+c’est près|近いです|ちかいです|chikai desu|가까워요|gakkawoyo|很近|hěn jìn|it's close
+c’est loin|遠いです|とおいです|tōi desu|멀어요|meoreoyo|很远|hěn yuǎn|it's far
+rue, chemin|道|みち|michi|길|gil|路|lù|street, road
+plan, carte|地図|ちず|chizu|지도|jido|地图|dìtú|map
+banque|銀行|ぎんこう|ginkō|은행|eunhaeng|银行|yínháng|bank
+distributeur de billets|ATM|エーティーエム|ē-tī-emu|현금인출기|hyeongeum-inchulgi|取款机|qǔkuǎnjī|ATM, cash machine
+pharmacie|薬局|やっきょく|yakkyoku|약국|yakguk|药店|yàodiàn|pharmacy
+supérette|コンビニ||konbini|편의점|pyeonuijeom|便利店|biànlìdiàn|convenience store
+temple|お寺|おてら|otera|절|jeol|寺庙|sìmiào|temple
+musée|博物館|はくぶつかん|hakubutsukan|박물관|bangmulgwan|博物馆|bówùguǎn|museum
+parc|公園|こうえん|kōen|공원|gongwon|公园|gōngyuán|park
+plage|ビーチ||bīchi|해변|haebyeon|海滩|hǎitān|beach
+`},
+{id:"shopping",name:"Achats & argent",travel:true,note:{
+  zh:"En Chine, on paie presque partout par QR code (微信支付 WeChat Pay ou 支付宝 Alipay)."},data:`
+magasin|店|みせ|mise|가게|gage|商店|shāngdiàn|shop, store
+argent|お金|おかね|okane|돈|don|钱|qián|money
+prix|値段|ねだん|nedan|가격|gagyeok|价格|jiàgé|price
+cher|高い|たかい|takai|비싸다|bissada|贵|guì|expensive
+pas cher|安い|やすい|yasui|싸다|ssada|便宜|piányi|cheap
+carte bancaire|カード||kādo|카드|kadeu|银行卡|yínhángkǎ|card
+espèces|現金|げんきん|genkin|현금|hyeongeum|现金|xiànjīn|cash
+reçu, ticket de caisse|レシート||reshīto|영수증|yeongsujeung|小票|xiǎopiào|receipt
+sac|袋|ふくろ|fukuro|봉투|bongtu|袋子|dàizi|bag
+taille|サイズ||saizu|사이즈|saijeu|尺码|chǐmǎ|size
+couleur|色|いろ|iro|색깔|saekkal|颜色|yánsè|color
+souvenir|お土産|おみやげ|omiyage|기념품|ginyeompum|纪念品|jìniànpǐn|souvenir
+vêtements|服|ふく|fuku|옷|ot|衣服|yīfu|clothes
+chaussures|靴|くつ|kutsu|신발|sinbal|鞋子|xiézi|shoes
+réduction|割引|わりびき|waribiki|할인|harin|打折|dǎzhé|discount
+`},
+{id:"sante",name:"Santé & urgences",travel:true,note:{},data:`
+au secours !|助けて！|たすけて|tasukete!|살려 주세요!|sallyeo juseyo!|救命！|jiùmìng!|help!
+police|警察|けいさつ|keisatsu|경찰|gyeongchal|警察|jǐngchá|police
+hôpital|病院|びょういん|byōin|병원|byeongwon|医院|yīyuàn|hospital
+médecin|医者|いしゃ|isha|의사|uisa|医生|yīshēng|doctor
+médicament|薬|くすり|kusuri|약|yak|药|yào|medicine
+ambulance|救急車|きゅうきゅうしゃ|kyūkyūsha|구급차|gugeupcha|救护车|jiùhùchē|ambulance
+j’ai mal|痛いです|いたいです|itai desu|아파요|apayo|好疼|hǎo téng|it hurts
+fièvre|熱|ねつ|netsu|열|yeol|发烧|fāshāo|fever
+tête|頭|あたま|atama|머리|meori|头|tóu|head
+ventre|お腹|おなか|onaka|배|bae|肚子|dùzi|stomach
+dangereux|危ない|あぶない|abunai|위험하다|wiheomhada|危险|wēixiǎn|dangerous
+incendie|火事|かじ|kaji|화재|hwajae|火灾|huǒzāi|fire
+ambassade|大使館|たいしかん|taishikan|대사관|daesagwan|大使馆|dàshǐguǎn|embassy
+assurance|保険|ほけん|hoken|보험|boheom|保险|bǎoxiǎn|insurance
+`},
+{id:"meteo",name:"Météo & saisons",travel:true,note:{
+  ja:"La saison des pluies (梅雨) va de début juin à mi-juillet. Les typhons arrivent de juillet à octobre, surtout en août et septembre.",
+  ko:"Au bulletin météo, on entend 맑음 (dégagé), 흐림 (couvert) et 비 (pluie). La mousson coréenne (장마) tombe de fin juin à fin juillet.",
+  zh:"Les températures se disent en degrés Celsius : 二十度 (èrshí dù) = 20 °C.",
+  en:"Aux États-Unis, la température est en Fahrenheit : 68 °F ≈ 20 °C."},data:`
+météo, temps|天気|てんき|tenki|날씨|nalssi|天气|tiānqì|weather
+soleil|太陽|たいよう|taiyō|태양|taeyang|太阳|tàiyáng|sun
+beau temps|晴れ|はれ|hare|맑음|malgeum|晴天|qíngtiān|sunny
+nuageux|曇り|くもり|kumori|흐림|heurim|阴天|yīntiān|cloudy
+pluie|雨|あめ|ame|비|bi|雨|yǔ|rain
+neige|雪|ゆき|yuki|눈|nun|雪|xuě|snow
+vent|風|かぜ|kaze|바람|baram|风|fēng|wind
+parapluie|傘|かさ|kasa|우산|usan|雨伞|yǔsǎn|umbrella
+typhon|台風|たいふう|taifū|태풍|taepung|台风|táifēng|typhoon
+tonnerre|雷|かみなり|kaminari|천둥|cheondung|雷|léi|thunder
+température|気温|きおん|kion|기온|gion|气温|qìwēn|temperature
+degré|度|ど|do|도|do|度|dù|degree
+lourd (chaud et humide)|蒸し暑い|むしあつい|mushiatsui|후덥지근하다|hudeopjigeunhada|闷热|mēnrè|muggy
+printemps|春|はる|haru|봄|bom|春天|chūntiān|spring
+été|夏|なつ|natsu|여름|yeoreum|夏天|xiàtiān|summer
+automne|秋|あき|aki|가을|gaeul|秋天|qiūtiān|autumn, fall
+hiver|冬|ふゆ|fuyu|겨울|gyeoul|冬天|dōngtiān|winter
+saison|季節|きせつ|kisetsu|계절|gyejeol|季节|jìjié|season
+prévisions météo|天気予報|てんきよほう|tenki yohō|일기 예보|ilgi yebo|天气预报|tiānqì yùbào|weather forecast
+cerisiers en fleurs|桜|さくら|sakura|벚꽃|beotkkot|樱花|yīnghuā|cherry blossoms
+feuilles d’automne|紅葉|こうよう|kōyō|단풍|danpung|红叶|hóngyè|autumn leaves
+saison des pluies|梅雨|つゆ|tsuyu|장마|jangma|梅雨|méiyǔ|rainy season
+`},
+{id:"temples",name:"Temples & traditions",travel:true,note:{
+  ja:"Au sanctuaire shinto (神社) : deux saluts, deux claps dans les mains, un salut (二礼二拍手一礼). Au temple bouddhiste (お寺), on joint simplement les mains, sans taper.",
+  ko:"Beaucoup de temples proposent un « temple stay » (템플스테이) : une ou deux nuits avec les moines.",
+  zh:"Dans les temples, on ne marche pas sur le seuil des portes : on passe par-dessus.",
+  en:"En Angleterre, la visite des grandes cathédrales est souvent payante, mais l’entrée aux offices religieux est gratuite."},data:`
+sanctuaire shinto|神社|じんじゃ|jinja|신사|sinsa|神社|shénshè|shrine
+porte du temple|山門|さんもん|sanmon|일주문|iljumun|山门|shānmén|temple gate
+Bouddha|仏様|ほとけさま|hotoke-sama|부처님|bucheonim|佛|fó|Buddha
+moine|お坊さん|おぼうさん|o-bōsan|스님|seunim|和尚|héshang|monk
+pagode|塔|とう|tō|탑|tap|塔|tǎ|pagoda
+statue de Bouddha|仏像|ぶつぞう|butsuzō|불상|bulsang|佛像|fóxiàng|Buddha statue
+encens|お線香|おせんこう|o-senkō|향|hyang|香|xiāng|incense
+prière|お祈り|おいのり|o-inori|기도|gido|祈祷|qídǎo|prayer
+porte-bonheur|お守り|おまもり|o-mamori|부적|bujeok|护身符|hùshēnfú|lucky charm
+vœu, souhait|願い|ねがい|negai|소원|sowon|愿望|yuànwàng|wish
+fête, festival|祭り|まつり|matsuri|축제|chukje|节日|jiérì|festival
+habit traditionnel|着物|きもの|kimono|한복|hanbok|汉服|hànfú|traditional dress
+cérémonie du thé|茶道|さどう|sadō|다도|dado|茶道|chádào|tea ceremony
+calligraphie|書道|しょどう|shodō|서예|seoye|书法|shūfǎ|calligraphy
+château, palais|お城|おしろ|o-shiro|궁궐|gunggwol|宫殿|gōngdiàn|castle, palace
+jardin|庭園|ていえん|teien|정원|jeongwon|园林|yuánlín|garden
+lanterne|提灯|ちょうちん|chōchin|초롱|chorong|灯笼|dēnglong|lantern
+tradition|伝統|でんとう|dentō|전통|jeontong|传统|chuántǒng|tradition
+histoire (le passé)|歴史|れきし|rekishi|역사|yeoksa|历史|lìshǐ|history
+`},
+{id:"anime",name:"Anime & manga",travel:false,note:{
+  ja:"Beaucoup de mots d’anime viennent de l’anglais et s’écrivent en katakana : オープニング (opening), キャラクター (personnage).",
+  ko:"En Corée, les BD en ligne s’appellent 웹툰 (webtoon). On lit sur son téléphone, en défilant vers le bas.",
+  zh:"动漫 (dòngmàn) regroupe à la fois l’animation et la BD. 二次元 (èrcìyuán, « 2D ») désigne l’univers des fans.",
+  en:"En anglais, « anime » désigne l’animation japonaise ; « cartoon » le dessin animé en général."},data:`
+anime, dessin animé|アニメ||anime|애니메이션|aenimeisyeon|动画|dònghuà|anime, cartoon
+manga, BD|漫画|まんが|manga|만화|manhwa|漫画|mànhuà|manga, comics
+personnage|キャラクター||kyarakutā|캐릭터|kaerikteo|角色|juésè|character
+héros, héroïne|主人公|しゅじんこう|shujinkō|주인공|juingong|主角|zhǔjué|main character
+méchant|悪役|あくやく|akuyaku|악당|akdang|反派|fǎnpài|villain
+épisode|エピソード||episōdo|에피소드|episodeu|集|jí|episode
+saison (d’une série)|シーズン||shīzun|시즌|sijeun|季|jì|season (TV series)
+doublage|吹き替え|ふきかえ|fukikae|더빙|deobing|配音|pèiyīn|dubbing
+doubleur, doubleuse|声優|せいゆう|seiyū|성우|seongu|配音演员|pèiyīn yǎnyuán|voice actor
+sous-titres|字幕|じまく|jimaku|자막|jamak|字幕|zìmù|subtitles
+générique de début|オープニング||ōpuningu|오프닝|opeuning|片头曲|piàntóuqǔ|opening theme
+mangaka, dessinateur|漫画家|まんがか|mangaka|만화가|manhwaga|漫画家|mànhuàjiā|manga artist
+figurine|フィギュア||figyua|피규어|pigyueo|手办|shǒubàn|figure
+cosplay|コスプレ||kosupure|코스프레|koseupeure|角色扮演|juésè bànyǎn|cosplay
+fan, otaku|オタク||otaku|덕후|deokhu|动漫迷|dòngmàn mí|fan, otaku
+combat|戦い|たたかい|tatakai|싸움|ssaum|战斗|zhàndòu|fight, battle
+pouvoir, force|力|ちから|chikara|힘|him|力量|lìliang|power, strength
+rêve|夢|ゆめ|yume|꿈|kkum|梦想|mèngxiǎng|dream
+compagnon d’équipe|仲間|なかま|nakama|동료|dongnyo|伙伴|huǒbàn|companion, teammate
+senpai, aîné(e)|先輩|せんぱい|senpai|선배|seonbae|前辈|qiánbèi|senior
+`},
+{id:"loisirs",name:"Sorties & loisirs",travel:false,note:{
+  ja:"Au karaoké japonais, on loue une petite salle privée à l’heure, boissons à volonté en option.",
+  ko:"노래방 (noraebang, « salle de chant ») est le karaoké coréen : une salle privée louée à l’heure.",
+  zh:"卡拉OK (kǎlā OK) se dit aussi KTV en Chine."},data:`
+cinéma (salle)|映画館|えいがかん|eigakan|영화관|yeonghwagwan|电影院|diànyǐngyuàn|movie theater
+film|映画|えいが|eiga|영화|yeonghwa|电影|diànyǐng|movie, film
+musique|音楽|おんがく|ongaku|음악|eumak|音乐|yīnyuè|music
+chanson|歌|うた|uta|노래|norae|歌|gē|song
+karaoké|カラオケ||karaoke|노래방|noraebang|卡拉OK|kǎlā OK|karaoke
+concert|コンサート||konsāto|콘서트|konseoteu|演唱会|yǎnchànghuì|concert
+jeu vidéo|ゲーム||gēmu|게임|geim|游戏|yóuxì|video game
+photo|写真|しゃしん|shashin|사진|sajin|照片|zhàopiàn|photo
+sport|スポーツ||supōtsu|운동|undong|运动|yùndòng|sport
+fête, soirée|パーティー||pātī|파티|pati|聚会|jùhuì|party
+parc d’attractions|遊園地|ゆうえんち|yūenchi|놀이공원|norigongwon|游乐园|yóulèyuán|amusement park
+livre|本|ほん|hon|책|chaek|书|shū|book
+danse|ダンス||dansu|춤|chum|跳舞|tiàowǔ|dance
+week-end|週末|しゅうまつ|shūmatsu|주말|jumal|周末|zhōumò|weekend
+vacances|休み|やすみ|yasumi|휴가|hyuga|假期|jiàqī|vacation, holiday
+passe-temps|趣味|しゅみ|shumi|취미|chwimi|爱好|àihào|hobby
+`},
+{id:"nature",name:"Nature & paysages",travel:false,note:{
+  ja:"Dans un onsen (温泉), on se lave entièrement avant d’entrer dans le bain. Les tatouages y sont parfois interdits.",
+  ko:"Les 찜질방 (jjimjilbang) sont des bains publics coréens, souvent ouverts jour et nuit.",
+  zh:"山 (montagne) et 水 (eau) forment 山水 (shānshuǐ), « paysage » dans la peinture chinoise."},data:`
+montagne|山|やま|yama|산|san|山|shān|mountain
+mer|海|うみ|umi|바다|bada|海|hǎi|sea
+rivière|川|かわ|kawa|강|gang|河|hé|river
+lac|湖|みずうみ|mizuumi|호수|hosu|湖|hú|lake
+forêt|森|もり|mori|숲|sup|森林|sēnlín|forest
+arbre|木|き|ki|나무|namu|树|shù|tree
+fleur|花|はな|hana|꽃|kkot|花|huā|flower
+île|島|しま|shima|섬|seom|岛|dǎo|island
+cascade|滝|たき|taki|폭포|pokpo|瀑布|pùbù|waterfall
+volcan|火山|かざん|kazan|화산|hwasan|火山|huǒshān|volcano
+source chaude|温泉|おんせん|onsen|온천|oncheon|温泉|wēnquán|hot spring
+ciel|空|そら|sora|하늘|haneul|天空|tiānkōng|sky
+étoile|星|ほし|hoshi|별|byeol|星星|xīngxing|star
+coucher de soleil|夕日|ゆうひ|yūhi|노을|noeul|夕阳|xīyáng|sunset
+animal|動物|どうぶつ|dōbutsu|동물|dongmul|动物|dòngwù|animal
+chat|猫|ねこ|neko|고양이|goyangi|猫|māo|cat
+chien|犬|いぬ|inu|개|gae|狗|gǒu|dog
+`},
+{id:"couleurs",name:"Couleurs",travel:false,note:{
+  ja:"En japonais, 青 (ao) peut aussi désigner le vert : le feu vert se dit 青信号 (ao shingō).",
+  ko:"On ajoute souvent 색 (saek, « couleur ») : 빨간색 = « (de) couleur rouge ».",
+  zh:"Le rouge (红) porte bonheur en Chine : c’est la couleur des fêtes et des mariages."},data:`
+rouge|赤|あか|aka|빨간색|ppalgansaek|红色|hóngsè|red
+bleu|青|あお|ao|파란색|paransaek|蓝色|lánsè|blue
+vert|緑|みどり|midori|초록색|choroksaek|绿色|lǜsè|green
+jaune|黄色|きいろ|kiiro|노란색|noransaek|黄色|huángsè|yellow
+noir|黒|くろ|kuro|검은색|geomeunsaek|黑色|hēisè|black
+blanc|白|しろ|shiro|흰색|huinsaek|白色|báisè|white
+rose|ピンク||pinku|분홍색|bunhongsaek|粉色|fěnsè|pink
+violet|紫|むらさき|murasaki|보라색|borasaek|紫色|zǐsè|purple
+orange|オレンジ||orenji|주황색|juhwangsaek|橙色|chéngsè|orange
+marron|茶色|ちゃいろ|chairo|갈색|galsaek|棕色|zōngsè|brown
+gris|灰色|はいいろ|haiiro|회색|hoesaek|灰色|huīsè|gray
+doré|金色|きんいろ|kin'iro|금색|geumsaek|金色|jīnsè|gold
+`},
+{id:"emotions",name:"Émotions & réactions",travel:false,note:{
+  ja:"Ces mots sont partout dans les anime : すごい, かわいい, かっこいい, 頑張って !",
+  ko:"대박 (daebak) et 화이팅 (hwaiting) reviennent sans arrêt dans les dramas et la K-pop.",
+  zh:"加油 (jiāyóu, littéralement « ajoute de l’huile ») sert à encourager quelqu’un."},data:`
+content, heureux|嬉しい|うれしい|ureshii|기쁘다|gippeuda|高兴|gāoxìng|happy
+triste|悲しい|かなしい|kanashii|슬프다|seulpeuda|难过|nánguò|sad
+en colère|怒っている|おこっている|okotte iru|화나다|hwanada|生气|shēngqì|angry
+avoir peur, effrayant|怖い|こわい|kowai|무섭다|museopda|害怕|hàipà|scared, scary
+surpris(e)|びっくりした||bikkuri shita|놀라다|nollada|吃惊|chījīng|surprised
+mignon|かわいい||kawaii|귀엽다|gwiyeopda|可爱|kě'ài|cute
+génial, incroyable|すごい||sugoi|대박|daebak|太棒了|tài bàng le|awesome
+cool, stylé|かっこいい||kakkoii|멋있다|meositda|帅|shuài|cool
+ennuyeux|つまらない||tsumaranai|지루하다|jiruhada|无聊|wúliáo|boring
+j’ai faim|お腹が空いた|おなかがすいた|onaka ga suita|배고파요|baegopayo|我饿了|wǒ è le|I'm hungry
+j’ai soif|喉が渇いた|のどがかわいた|nodo ga kawaita|목말라요|mongmallayo|我渴了|wǒ kě le|I'm thirsty
+j’adore|大好き|だいすき|daisuki|정말 좋아해요|jeongmal joahaeyo|我很喜欢|wǒ hěn xǐhuan|I love it
+vraiment ?|本当？|ほんとう？|hontō?|진짜?|jinjja?|真的吗？|zhēn de ma?|really?
+tant mieux !|よかった||yokatta|다행이에요|dahaengieyo|太好了|tài hǎo le|that's great!
+courage !|頑張って！|がんばって！|ganbatte!|화이팅!|hwaiting!|加油！|jiāyóu!|you can do it!
+`},
+{id:"verbes",name:"Verbes courants",travel:false,note:{
+  ja:"Les verbes sont à la forme du dictionnaire. Pour parler poliment, on utilise la forme en -ます (leçon de grammaire 4). 好き et 欲しい sont des adjectifs en japonais.",
+  ko:"Les verbes sont à la forme du dictionnaire (en -다). Pour parler poliment, on utilise la forme en -요 (leçon de grammaire 3).",
+  zh:"Les verbes chinois ne se conjuguent jamais : 吃 reste 吃, quels que soient la personne et le temps.",
+  en:"Les verbes sont donnés à l’infinitif (to …). Au présent, on ajoute -s avec he / she / it."},data:`
+manger|食べる|たべる|taberu|먹다|meokda|吃|chī|to eat
+boire|飲む|のむ|nomu|마시다|masida|喝|hē|to drink
+aller|行く|いく|iku|가다|gada|去|qù|to go
+venir|来る|くる|kuru|오다|oda|来|lái|to come
+voir, regarder|見る|みる|miru|보다|boda|看|kàn|to see, to watch
+acheter|買う|かう|kau|사다|sada|买|mǎi|to buy
+parler|話す|はなす|hanasu|말하다|malhada|说|shuō|to speak
+comprendre|分かる|わかる|wakaru|이해하다|ihaehada|懂|dǒng|to understand
+savoir, connaître|知る|しる|shiru|알다|alda|知道|zhīdào|to know
+faire|する||suru|하다|hada|做|zuò|to do
+dormir|寝る|ねる|neru|자다|jada|睡觉|shuìjiào|to sleep
+attendre|待つ|まつ|matsu|기다리다|gidarida|等|děng|to wait
+aimer (bien)|好き|すき|suki|좋아하다|joahada|喜欢|xǐhuan|to like
+vouloir|欲しい|ほしい|hoshii|원하다|wonhada|要|yào|to want
+avoir, il y a|ある||aru|있다|itda|有|yǒu|to have, there is
+lire|読む|よむ|yomu|읽다|ikda|读|dú|to read
+écrire|書く|かく|kaku|쓰다|sseuda|写|xiě|to write
+aider|手伝う|てつだう|tetsudau|돕다|dopda|帮助|bāngzhù|to help
+payer|払う|はらう|harau|지불하다|jibulhada|付钱|fù qián|to pay
+`},
+{id:"adjectifs",name:"Adjectifs courants",travel:false,note:{
+  ja:"Il y a deux familles : les adjectifs en い (高い) et en な (きれい). Voir la leçon de grammaire 6.",
+  ko:"En coréen, les adjectifs se conjuguent comme des verbes : 비싸다 → 비싸요 (« c’est cher »).",
+  zh:"Devant un adjectif, on met 很 (hěn) et non 是 : 很好 « c’est bien »."},data:`
+délicieux|美味しい|おいしい|oishii|맛있다|masitda|好吃|hǎochī|delicious
+bon, bien|いい||ii|좋다|jota|好|hǎo|good
+grand|大きい|おおきい|ōkii|크다|keuda|大|dà|big
+petit|小さい|ちいさい|chiisai|작다|jakda|小|xiǎo|small
+chaud (temps)|暑い|あつい|atsui|덥다|deopda|热|rè|hot
+froid (temps)|寒い|さむい|samui|춥다|chupda|冷|lěng|cold
+beau, joli|きれい||kirei|예쁘다|yeppeuda|漂亮|piàoliang|beautiful
+nouveau|新しい|あたらしい|atarashii|새롭다|saeropda|新|xīn|new
+vieux (objet)|古い|ふるい|furui|오래되다|oraedoeda|旧|jiù|old
+facile|簡単|かんたん|kantan|쉽다|swipda|容易|róngyì|easy
+difficile|難しい|むずかしい|muzukashii|어렵다|eoryeopda|难|nán|difficult
+intéressant, amusant|面白い|おもしろい|omoshiroi|재미있다|jaemiitda|有意思|yǒu yìsi|interesting, fun
+fatigué(e)|疲れた|つかれた|tsukareta|피곤하다|pigonhada|累|lèi|tired
+rapide|速い|はやい|hayai|빠르다|ppareuda|快|kuài|fast
+lent|遅い|おそい|osoi|느리다|neurida|慢|màn|slow
+occupé(e)|忙しい|いそがしい|isogashii|바쁘다|bappeuda|忙|máng|busy
+`},
+{id:"questions",name:"Mots interrogatifs",travel:false,note:{},data:`
+quoi ?|何|なに|nani|뭐|mwo|什么|shénme|what?
+qui ?|誰|だれ|dare|누구|nugu|谁|shéi|who?
+où ?|どこ||doko|어디|eodi|哪里|nǎlǐ|where?
+quand ?|いつ||itsu|언제|eonje|什么时候|shénme shíhou|when?
+pourquoi ?|どうして||dōshite|왜|wae|为什么|wèishénme|why?
+comment ?|どう||dō|어떻게|eotteoke|怎么|zěnme|how?
+combien (prix) ?|いくら||ikura|얼마|eolma|多少钱|duōshao qián|how much?
+lequel ?|どれ||dore|어느 것|eoneu geot|哪个|nǎge|which one?
+`}
+];
+
+/* ================= PHRASES DE VOYAGE =================
+   fr | japonais | rōmaji | coréen | romanisation | chinois | pinyin | anglais */
+const PHRASES=[
+{id:"survie",name:"Se débrouiller",data:`
+Vous parlez anglais ?|英語を話せますか？|Eigo o hanasemasu ka?|영어 할 수 있어요?|Yeongeo hal su isseoyo?|你会说英语吗？|Nǐ huì shuō Yīngyǔ ma?|Do you speak English?
+Je parle un peu {L}|日本語が少し話せます|Nihongo ga sukoshi hanasemasu|한국어를 조금 해요|Hangugeoreul jogeum haeyo|我会说一点中文|Wǒ huì shuō yìdiǎn Zhōngwén|I speak a little English
+Pouvez-vous répéter ?|もう一度お願いします|Mō ichido onegai shimasu|다시 한 번 말해 주세요|Dasi han beon malhae juseyo|请再说一遍|Qǐng zài shuō yí biàn|Could you say that again?
+Plus lentement, s’il vous plaît|ゆっくりお願いします|Yukkuri onegai shimasu|천천히 말해 주세요|Cheoncheonhi malhae juseyo|请说慢一点|Qǐng shuō màn yìdiǎn|More slowly, please
+Comment dit-on ça en {L} ?|これは日本語で何と言いますか？|Kore wa nihongo de nan to iimasu ka?|이거 한국어로 뭐라고 해요?|Igeo hangugeoro mworago haeyo?|这个用中文怎么说？|Zhège yòng Zhōngwén zěnme shuō?|How do you say this in English?
+Je m’appelle …|私は…です|Watashi wa … desu|저는 …입니다|Jeoneun …imnida|我叫…|Wǒ jiào …|My name is …
+Je suis français(e)|フランス人です|Furansu-jin desu|프랑스 사람이에요|Peurangseu saramieyo|我是法国人|Wǒ shì Fǎguórén|I'm French
+Pouvez-vous me prendre en photo ?|写真を撮ってもらえますか？|Shashin o totte moraemasu ka?|사진 좀 찍어 주시겠어요?|Sajin jom jjigeo jusigesseoyo?|可以帮我拍张照片吗？|Kěyǐ bāng wǒ pāi zhāng zhàopiàn ma?|Could you take a photo of me?
+`},
+{id:"resto",name:"Restaurant",data:`
+Nous sommes deux|二人です|Futari desu|두 명이에요|Du myeongieyo|两位|Liǎng wèi|A table for two, please
+La carte, s’il vous plaît|メニューをお願いします|Menyū o onegai shimasu|메뉴판 주세요|Menyupan juseyo|请给我菜单|Qǐng gěi wǒ càidān|Could I see the menu, please?
+Je voudrais ceci|これをください|Kore o kudasai|이거 주세요|Igeo juseyo|我要这个|Wǒ yào zhège|I'd like this, please
+De l’eau, s’il vous plaît|お水をください|O-mizu o kudasai|물 좀 주세요|Mul jom juseyo|请给我一杯水|Qǐng gěi wǒ yì bēi shuǐ|Some water, please
+Pas trop épicé, s’il vous plaît|辛さ控えめでお願いします|Karasa hikaeme de onegai shimasu|덜 맵게 해 주세요|Deol maepge hae juseyo|不要太辣|Bú yào tài là|Not too spicy, please
+Je suis allergique à …|…アレルギーがあります|… arerugī ga arimasu|… 알레르기가 있어요|… allereugiga isseoyo|我对…过敏|Wǒ duì … guòmǐn|I'm allergic to …
+Je suis végétarien(ne)|ベジタリアンです|Bejitarian desu|저는 채식주의자예요|Jeoneun chaesikjuuijayeyo|我吃素|Wǒ chī sù|I'm vegetarian
+L’addition, s’il vous plaît|お会計お願いします|O-kaikei onegai shimasu|계산해 주세요|Gyesanhae juseyo|买单，谢谢|Mǎidān, xièxie|Could we have the bill, please?
+C’était délicieux, merci|ごちそうさまでした|Gochisōsama deshita|잘 먹었습니다|Jal meogeotseumnida|很好吃，谢谢|Hěn hǎochī, xièxie|That was delicious, thank you
+`},
+{id:"transports",name:"Transports",data:`
+Où est la gare ?|駅はどこですか？|Eki wa doko desu ka?|역이 어디예요?|Yeogi eodiyeyo?|火车站在哪里？|Huǒchēzhàn zài nǎlǐ?|Where is the station?
+Un billet pour …, s’il vous plaît|…までの切符を一枚ください|… made no kippu o ichi-mai kudasai|…까지 표 한 장 주세요|…kkaji pyo han jang juseyo|一张去…的票|Yì zhāng qù … de piào|One ticket to …, please
+Ce train va-t-il à … ?|この電車は…に行きますか？|Kono densha wa … ni ikimasu ka?|이 기차 …에 가요?|I gicha …e gayo?|这趟车去…吗？|Zhè tàng chē qù … ma?|Does this train go to …?
+À cette adresse, s’il vous plaît|この住所までお願いします|Kono jūsho made onegai shimasu|이 주소로 가 주세요|I jusoro ga juseyo|请到这个地址|Qǐng dào zhège dìzhǐ|To this address, please
+Arrêtez-vous ici, s’il vous plaît|ここで止めてください|Koko de tomete kudasai|여기서 세워 주세요|Yeogiseo sewo juseyo|请在这里停车|Qǐng zài zhèlǐ tíngchē|Please stop here
+Combien de temps ça prend ?|どのくらいかかりますか？|Dono kurai kakarimasu ka?|얼마나 걸려요?|Eolmana geollyeoyo?|要多长时间？|Yào duō cháng shíjiān?|How long does it take?
+C’est loin d’ici ?|ここから遠いですか？|Koko kara tōi desu ka?|여기서 멀어요?|Yeogiseo meoreoyo?|离这里远吗？|Lí zhèlǐ yuǎn ma?|Is it far from here?
+Où sont les toilettes ?|トイレはどこですか？|Toire wa doko desu ka?|화장실이 어디예요?|Hwajangsiri eodiyeyo?|洗手间在哪里？|Xǐshǒujiān zài nǎlǐ?|Where is the restroom?
+Je suis perdu(e)|道に迷いました|Michi ni mayoimashita|길을 잃었어요|Gireul ireosseoyo|我迷路了|Wǒ mílù le|I'm lost
+`},
+{id:"hotel",name:"Hôtel",data:`
+J’ai une réservation|予約しています|Yoyaku shite imasu|예약했어요|Yeyakaesseoyo|我有预订|Wǒ yǒu yùdìng|I have a reservation
+Je voudrais faire le check-in|チェックインお願いします|Chekkuin onegai shimasu|체크인하려고요|Chekeuin-haryeogoyo|我要办理入住|Wǒ yào bànlǐ rùzhù|I'd like to check in
+Quel est le mot de passe du wifi ?|Wi-Fiのパスワードは何ですか？|Waifai no pasuwādo wa nan desu ka?|와이파이 비밀번호가 뭐예요?|Waipai bimilbeonhoga mwoyeyo?|Wi-Fi密码是多少？|Wi-Fi mìmǎ shì duōshao?|What's the Wi-Fi password?
+Le petit-déjeuner est à quelle heure ?|朝ご飯は何時ですか？|Asagohan wa nanji desu ka?|아침 식사는 몇 시예요?|Achim siksaneun myeot siyeyo?|早餐几点？|Zǎocān jǐ diǎn?|What time is breakfast?
+Pouvez-vous garder mes bagages ?|荷物を預かってもらえますか？|Nimotsu o azukatte moraemasu ka?|짐 좀 맡아 주실 수 있어요?|Jim jom mata jusil su isseoyo?|可以寄存行李吗？|Kěyǐ jìcún xíngli ma?|Could you keep my luggage?
+La clim ne marche pas|エアコンが壊れています|Eakon ga kowarete imasu|에어컨이 안 돼요|Eeokeoni an dwaeyo|空调坏了|Kōngtiáo huài le|The air conditioning isn't working
+`},
+{id:"achats",name:"Achats",data:`
+Combien ça coûte ?|いくらですか？|Ikura desu ka?|얼마예요?|Eolmayeyo?|多少钱？|Duōshao qián?|How much is it?
+C’est trop cher|高すぎます|Takasugimasu|너무 비싸요|Neomu bissayo|太贵了|Tài guì le|It's too expensive
+Vous pouvez baisser le prix ?|安くなりますか？|Yasuku narimasu ka?|좀 깎아 주세요|Jom kkakka juseyo|能便宜一点吗？|Néng piányi yìdiǎn ma?|Could you give me a discount?
+Je regarde seulement|見ているだけです|Mite iru dake desu|그냥 구경하는 거예요|Geunyang gugyeonghaneun geoyeyo|我只是看看|Wǒ zhǐshì kànkan|I'm just looking
+Je le prends|これにします|Kore ni shimasu|이걸로 할게요|Igeollo halgeyo|我买这个|Wǒ mǎi zhège|I'll take it
+Je peux payer par carte ?|カードで払えますか？|Kādo de haraemasu ka?|카드 돼요?|Kadeu dwaeyo?|可以刷卡吗？|Kěyǐ shuākǎ ma?|Can I pay by card?
+Vous avez une autre taille ?|他のサイズはありますか？|Hoka no saizu wa arimasu ka?|다른 사이즈 있어요?|Dareun saijeu isseoyo?|有别的尺码吗？|Yǒu bié de chǐmǎ ma?|Do you have another size?
+`},
+{id:"urgences",name:"Urgences",data:`
+Aidez-moi, s’il vous plaît !|助けてください！|Tasukete kudasai!|도와주세요!|Dowajuseyo!|请帮帮我！|Qǐng bāngbang wǒ!|Please help me!
+Appelez la police !|警察を呼んでください！|Keisatsu o yonde kudasai!|경찰을 불러 주세요!|Gyeongchareul bulleo juseyo!|请叫警察！|Qǐng jiào jǐngchá!|Call the police!
+Appelez une ambulance !|救急車を呼んでください！|Kyūkyūsha o yonde kudasai!|구급차를 불러 주세요!|Gugeupchareul bulleo juseyo!|请叫救护车！|Qǐng jiào jiùhùchē!|Call an ambulance!
+J’ai perdu mon passeport|パスポートをなくしました|Pasupōto o nakushimashita|여권을 잃어버렸어요|Yeogwoneul ireobeoryeosseoyo|我的护照丢了|Wǒ de hùzhào diū le|I've lost my passport
+Je suis malade|具合が悪いです|Guai ga warui desu|몸이 아파요|Momi apayo|我生病了|Wǒ shēngbìng le|I'm sick
+J’ai mal ici|ここが痛いです|Koko ga itai desu|여기가 아파요|Yeogiga apayo|我这里疼|Wǒ zhèlǐ téng|It hurts here
+Où est l’hôpital le plus proche ?|一番近い病院はどこですか？|Ichiban chikai byōin wa doko desu ka?|가장 가까운 병원이 어디예요?|Gajang gakkaun byeongwoni eodiyeyo?|最近的医院在哪里？|Zuì jìn de yīyuàn zài nǎlǐ?|Where's the nearest hospital?
+`},
+{id:"visites",name:"Temples & visites",data:`
+Je peux prendre des photos ?|写真を撮ってもいいですか？|Shashin o totte mo ii desu ka?|사진 찍어도 돼요?|Sajin jjigeodo dwaeyo?|可以拍照吗？|Kěyǐ pāizhào ma?|Can I take pictures?
+Ça ouvre à quelle heure ?|何時に開きますか？|Nanji ni akimasu ka?|몇 시에 열어요?|Myeot sie yeoreoyo?|几点开门？|Jǐ diǎn kāimén?|What time does it open?
+Ça ferme à quelle heure ?|何時に閉まりますか？|Nanji ni shimarimasu ka?|몇 시에 닫아요?|Myeot sie dadayo?|几点关门？|Jǐ diǎn guānmén?|What time does it close?
+Combien coûte l’entrée ?|入場料はいくらですか？|Nyūjōryō wa ikura desu ka?|입장료가 얼마예요?|Ipjangnyoga eolmayeyo?|门票多少钱？|Ménpiào duōshao qián?|How much is the entrance fee?
+Un billet adulte, s’il vous plaît|大人一枚お願いします|Otona ichi-mai onegai shimasu|어른 한 장 주세요|Eoreun han jang juseyo|一张成人票|Yì zhāng chéngrén piào|One adult ticket, please
+Faut-il enlever ses chaussures ?|靴を脱ぎますか？|Kutsu o nugimasu ka?|신발 벗어야 해요?|Sinbal beoseoya haeyo?|要脱鞋吗？|Yào tuō xié ma?|Do I need to take off my shoes?
+Il y a un plan en anglais ?|英語の地図はありますか？|Eigo no chizu wa arimasu ka?|영어 지도 있어요?|Yeongeo jido isseoyo?|有英文地图吗？|Yǒu Yīngwén dìtú ma?|Is there a map in English?
+C’est magnifique !|きれいですね！|Kirei desu ne!|정말 아름다워요!|Jeongmal areumdawoyo!|太美了！|Tài měi le!|It's beautiful!
+`},
+{id:"meteo",name:"Parler de la météo",data:`
+Quel temps fait-il aujourd’hui ?|今日の天気はどうですか？|Kyō no tenki wa dō desu ka?|오늘 날씨 어때요?|Oneul nalssi eottaeyo?|今天天气怎么样？|Jīntiān tiānqì zěnmeyàng?|What's the weather like today?
+Il fait beau|いい天気ですね|Ii tenki desu ne|날씨가 좋아요|Nalssiga joayo|天气很好|Tiānqì hěn hǎo|It's a nice day
+Il fait chaud|暑いですね|Atsui desu ne|더워요|Deowoyo|好热啊|Hǎo rè a|It's hot
+Il fait froid|寒いですね|Samui desu ne|추워요|Chuwoyo|好冷啊|Hǎo lěng a|It's cold
+Il pleut|雨が降っています|Ame ga futte imasu|비가 와요|Biga wayo|下雨了|Xià yǔ le|It's raining
+Il neige|雪が降っています|Yuki ga futte imasu|눈이 와요|Nuni wayo|下雪了|Xià xuě le|It's snowing
+Il va pleuvoir demain ?|明日は雨が降りますか？|Ashita wa ame ga furimasu ka?|내일 비 와요?|Naeil bi wayo?|明天会下雨吗？|Míngtiān huì xià yǔ ma?|Is it going to rain tomorrow?
+Il fait combien de degrés ?|何度ですか？|Nando desu ka?|몇 도예요?|Myeot doyeyo?|多少度？|Duōshao dù?|What's the temperature?
+`},
+{id:"otaku",name:"Parler d’anime",data:`
+Tu aimes les anime ?|アニメが好きですか？|Anime ga suki desu ka?|애니메이션 좋아해요?|Aenimeisyeon joahaeyo?|你喜欢看动漫吗？|Nǐ xǐhuan kàn dòngmàn ma?|Do you like anime?
+C’est quoi ton anime préféré ?|一番好きなアニメは何ですか？|Ichiban suki na anime wa nan desu ka?|제일 좋아하는 애니메이션이 뭐예요?|Jeil joahaneun aenimeisyeoni mwoyeyo?|你最喜欢哪部动漫？|Nǐ zuì xǐhuan nǎ bù dòngmàn?|What's your favorite anime?
+J’adore ce personnage|このキャラが大好きです|Kono kyara ga daisuki desu|이 캐릭터 정말 좋아해요|I kaerikteo jeongmal joahaeyo|我超喜欢这个角色|Wǒ chāo xǐhuan zhège juésè|I love this character
+Je regarde en VO sous-titrée|字幕で見ています|Jimaku de mite imasu|자막으로 봐요|Jamageuro bwayo|我看字幕版|Wǒ kàn zìmù bǎn|I watch it with subtitles
+Où peut-on acheter des mangas ?|漫画はどこで買えますか？|Manga wa doko de kaemasu ka?|만화책은 어디서 살 수 있어요?|Manhwachaegeun eodiseo sal su isseoyo?|在哪里可以买到漫画？|Zài nǎlǐ kěyǐ mǎi dào mànhuà?|Where can I buy manga?
+Pas de spoiler, s’il te plaît !|ネタバレしないで！|Netabare shinaide!|스포하지 마세요!|Seupohaji maseyo!|别剧透！|Bié jùtòu!|No spoilers, please!
+Le prochain épisode sort quand ?|次回はいつですか？|Jikai wa itsu desu ka?|다음 화는 언제 나와요?|Daeum hwaneun eonje nawayo?|下一集什么时候出？|Xià yì jí shénme shíhou chū?|When does the next episode come out?
+`}
+];
+
+const EMERG={
+  ja:{c:"Au Japon",n:[["110","Police"],["119","Ambulance et pompiers"]]},
+  ko:{c:"En Corée du Sud",n:[["112","Police"],["119","Ambulance et pompiers"],["1330","Aide aux touristes (anglais, japonais, chinois…)"]]},
+  zh:{c:"En Chine",n:[["110","Police"],["120","Ambulance"],["119","Pompiers"]]},
+  en:{c:"Pays anglophones",n:[["999","Royaume-Uni (ou 112)"],["911","États-Unis et Canada"],["000","Australie"]]}
+};
+
+/* ================= CONVERSATIONS =================
+   locuteur | texte | romanisation | traduction */
+const DLG_META={
+  intro:{t:"Se présenter"},resto:{t:"Au restaurant",b:"Serveur"},chemin:{t:"Demander son chemin",b:"Passant"},
+  gare:{t:"Acheter un billet de train",b:"Guichet"},hotel:{t:"À l’hôtel",b:"Réception"},shop:{t:"Faire du shopping",b:"Vendeur"},
+  temple:{t:"Visiter un temple",b:"Accueil"},anime:{t:"Parler d’anime"}
+};
+const DLG_ORDER=["intro","resto","chemin","gare","hotel","shop","temple","anime"];
+const DIALOGUES={
+ja:[
+{id:"intro",b:"Yuki",note:"よろしくお願いします se dit à la fin d’une présentation : « je compte sur vous », « ravi(e) de vous connaître ».",lines:`
+B|はじめまして。ゆきです。|Hajimemashite. Yuki desu.|Enchantée. Je suis Yuki.
+A|はじめまして。マリーです。フランスから来ました。|Hajimemashite. Marī desu. Furansu kara kimashita.|Enchantée. Je suis Marie. Je viens de France.
+B|そうですか！学生ですか？|Sō desu ka! Gakusei desu ka?|Ah bon ! Vous êtes étudiante ?
+A|はい、大学生です。日本語を勉強しています。|Hai, daigakusei desu. Nihongo o benkyō shite imasu.|Oui, je suis à l’université. J’apprends le japonais.
+B|日本語が上手ですね！|Nihongo ga jōzu desu ne!|Vous parlez bien japonais !
+A|いえいえ、まだまだです。よろしくお願いします。|Ie ie, mada mada desu. Yoroshiku onegai shimasu.|Oh non, j’ai encore du chemin. Ravie de vous connaître.
+`},
+{id:"resto",note:"Au Japon, on ne laisse pas de pourboire. L’eau est servie gratuitement et on paie souvent à la caisse en sortant.",lines:`
+B|いらっしゃいませ！何名様ですか？|Irasshaimase! Nan-mei sama desu ka?|Bienvenue ! Vous êtes combien ?
+A|二人です。|Futari desu.|Nous sommes deux.
+B|こちらへどうぞ。|Kochira e dōzo.|Par ici, je vous prie.
+A|すみません、ラーメンを二つください。|Sumimasen, rāmen o futatsu kudasai.|Excusez-moi, deux ramen s’il vous plaît.
+B|お飲み物はいかがですか？|O-nomimono wa ikaga desu ka?|Et comme boisson ?
+A|お水をお願いします。|O-mizu o onegai shimasu.|De l’eau, s’il vous plaît.
+A|お会計お願いします。|O-kaikei onegai shimasu.|L’addition, s’il vous plaît.
+B|二千円です。ありがとうございました！|Nisen-en desu. Arigatō gozaimashita!|Ça fait 2 000 yens. Merci beaucoup !
+`},
+{id:"chemin",note:"すみません sert à la fois à s’excuser, à remercier et à interpeller quelqu’un.",lines:`
+A|すみません、駅はどこですか？|Sumimasen, eki wa doko desu ka?|Excusez-moi, où est la gare ?
+B|この道をまっすぐ行って、二つ目の角を右に曲がってください。|Kono michi o massugu itte, futatsume no kado o migi ni magatte kudasai.|Allez tout droit dans cette rue, puis tournez à droite au deuxième coin.
+A|遠いですか？|Tōi desu ka?|C’est loin ?
+B|いいえ、歩いて五分ぐらいです。|Iie, aruite go-fun gurai desu.|Non, environ cinq minutes à pied.
+A|ありがとうございます！|Arigatō gozaimasu!|Merci beaucoup !
+B|どういたしまして。|Dō itashimashite.|De rien.
+`},
+{id:"gare",note:"番線 (bansen) = numéro de voie. Dans les grandes gares, les panneaux sont aussi en anglais.",lines:`
+A|すみません、京都までの切符を一枚ください。|Sumimasen, Kyōto made no kippu o ichi-mai kudasai.|Excusez-moi, un billet pour Kyoto, s’il vous plaît.
+B|片道ですか、往復ですか？|Katamichi desu ka, ōfuku desu ka?|Aller simple ou aller-retour ?
+A|片道でお願いします。|Katamichi de onegai shimasu.|Aller simple, s’il vous plaît.
+B|一万四千円です。|Ichiman yonsen-en desu.|Ça fait 14 000 yens.
+A|何番線ですか？|Nan-bansen desu ka?|C’est sur quelle voie ?
+B|十四番線です。|Jūyon-bansen desu.|Voie 14.
+`},
+{id:"hotel",note:"Le 5階 japonais correspond à notre 4e étage, car le 1階 est le rez-de-chaussée.",lines:`
+B|いらっしゃいませ。|Irasshaimase.|Bienvenue.
+A|チェックインをお願いします。マリーの名前で予約しています。|Chekkuin o onegai shimasu. Marī no namae de yoyaku shite imasu.|Je voudrais faire le check-in. J’ai réservé au nom de Marie.
+B|パスポートをお願いします。|Pasupōto o onegai shimasu.|Votre passeport, s’il vous plaît.
+B|お部屋は五階の503号室です。|O-heya wa go-kai no go-maru-san gōshitsu desu.|Votre chambre est la 503, au 5e étage.
+A|朝ご飯は何時からですか？|Asagohan wa nanji kara desu ka?|Le petit-déjeuner est à partir de quelle heure ?
+B|七時から十時までです。|Shichiji kara jūji made desu.|De 7 h à 10 h.
+`},
+{id:"shop",note:"En caisse, on vous demande souvent 袋いりますか？(Fukuro irimasu ka?), « Vous voulez un sac ? » : les sacs sont payants.",lines:`
+A|すみません、これはいくらですか？|Sumimasen, kore wa ikura desu ka?|Excusez-moi, combien coûte ceci ?
+B|三千五百円です。|Sanzen gohyaku-en desu.|3 500 yens.
+A|他の色はありますか？|Hoka no iro wa arimasu ka?|Vous l’avez dans une autre couleur ?
+B|はい、黒と白があります。|Hai, kuro to shiro ga arimasu.|Oui, en noir et en blanc.
+A|じゃあ、黒をください。カードで払えますか？|Jā, kuro o kudasai. Kādo de haraemasu ka?|Alors le noir, s’il vous plaît. Je peux payer par carte ?
+B|はい、大丈夫です。|Hai, daijōbu desu.|Oui, pas de problème.
+`},
+{id:"temple",note:"Au sanctuaire shinto : deux saluts, deux claps, un salut (二礼二拍手一礼). Au temple bouddhiste, on joint simplement les mains, sans taper.",lines:`
+A|すみません、入場料はいくらですか？|Sumimasen, nyūjōryō wa ikura desu ka?|Excusez-moi, combien coûte l’entrée ?
+B|大人は五百円です。|Otona wa gohyaku-en desu.|500 yens pour un adulte.
+A|中で写真を撮ってもいいですか？|Naka de shashin o totte mo ii desu ka?|Je peux prendre des photos à l’intérieur ?
+B|庭はいいですが、本堂の中はだめです。|Niwa wa ii desu ga, hondō no naka wa dame desu.|Dans le jardin oui, mais pas dans le bâtiment principal.
+A|分かりました。靴は脱ぎますか？|Wakarimashita. Kutsu wa nugimasu ka?|D’accord. Il faut enlever ses chaussures ?
+B|はい、ここで脱いでください。|Hai, koko de nuide kudasai.|Oui, enlevez-les ici, s’il vous plaît.
+A|お守りはどこで買えますか？|O-mamori wa doko de kaemasu ka?|Où peut-on acheter des porte-bonheur ?
+B|あちらで買えます。|Achira de kaemasu.|Là-bas.
+`},
+{id:"anime",b:"Ren",note:"〜ませんか (masen ka) sert à proposer poliment : 行きませんか？« Et si on y allait ? »",lines:`
+B|マリーさんはアニメが好きですか？|Marī-san wa anime ga suki desu ka?|Marie, tu aimes les anime ?
+A|はい、大好きです！|Hai, daisuki desu!|Oui, j’adore !
+B|一番好きなアニメは何ですか？|Ichiban suki na anime wa nan desu ka?|C’est quoi ton anime préféré ?
+A|ジブリの映画が一番好きです。|Jiburi no eiga ga ichiban suki desu.|Je préfère les films Ghibli.
+B|いいですね！秋葉原に行ったことがありますか？|Ii desu ne! Akihabara ni itta koto ga arimasu ka?|Super ! Tu es déjà allée à Akihabara ?
+A|まだです。一緒に行きませんか？|Mada desu. Issho ni ikimasen ka?|Pas encore. On y va ensemble ?
+B|いいですよ！週末に行きましょう。|Ii desu yo! Shūmatsu ni ikimashō.|Avec plaisir ! Allons-y ce week-end.
+`}
+],
+ko:[
+{id:"intro",b:"Minjun",note:"En Corée, on demande souvent l’âge dès la première rencontre : il détermine le niveau de politesse à utiliser.",lines:`
+B|안녕하세요. 저는 민준이에요.|Annyeonghaseyo. Jeoneun Minjunieyo.|Bonjour. Je suis Minjun.
+A|안녕하세요. 저는 마리예요. 프랑스에서 왔어요.|Annyeonghaseyo. Jeoneun Mariyeyo. Peurangseueseo wasseoyo.|Bonjour. Je suis Marie. Je viens de France.
+B|아, 그래요? 학생이에요?|A, geuraeyo? Haksaengieyo?|Ah bon ? Vous êtes étudiante ?
+A|네, 대학생이에요. 한국어를 공부하고 있어요.|Ne, daehaksaengieyo. Hangugeoreul gongbuhago isseoyo.|Oui, je suis à l’université. J’apprends le coréen.
+B|한국어 잘하시네요!|Hangugeo jalhasineyo!|Vous parlez bien coréen !
+A|아니에요, 아직 많이 부족해요. 만나서 반가워요.|Anieyo, ajik mani bujokaeyo. Mannaseo bangawoyo.|Oh non, j’ai encore beaucoup à apprendre. Ravie de vous rencontrer.
+`},
+{id:"resto",note:"On appelle le serveur avec 저기요 ! (jeogiyo). L’eau est souvent en libre-service, il n’y a pas de pourboire et on paie à la caisse en sortant.",lines:`
+B|어서 오세요! 몇 분이세요?|Eoseo oseyo! Myeot buniseyo?|Bienvenue ! Vous êtes combien ?
+A|두 명이에요.|Du myeongieyo.|Nous sommes deux.
+B|이쪽으로 앉으세요.|Ijjogeuro anjeuseyo.|Asseyez-vous par ici.
+A|저기요! 비빔밥 두 개 주세요.|Jeogiyo! Bibimbap du gae juseyo.|S’il vous plaît ! Deux bibimbap.
+B|음료는 뭘로 하시겠어요?|Eumnyoneun mwollo hasigesseoyo?|Et comme boisson ?
+A|물 주세요.|Mul juseyo.|De l’eau, s’il vous plaît.
+A|계산해 주세요.|Gyesanhae juseyo.|L’addition, s’il vous plaît.
+B|이만 사천 원입니다. 감사합니다!|Iman sacheon wonimnida. Gamsahamnida!|Ça fait 24 000 wons. Merci !
+`},
+{id:"chemin",note:"실례합니다 (« je vous dérange ») est la façon polie d’aborder un inconnu.",lines:`
+A|실례합니다. 지하철역이 어디예요?|Sillyehamnida. Jihacheollyeogi eodiyeyo?|Excusez-moi. Où est la station de métro ?
+B|이 길로 쭉 가서 두 번째 골목에서 오른쪽으로 가세요.|I gillo jjuk gaseo du beonjjae golmogeseo oreunjjogeuro gaseyo.|Allez tout droit par cette rue, puis prenez à droite à la deuxième ruelle.
+A|멀어요?|Meoreoyo?|C’est loin ?
+B|아니요, 걸어서 5분 정도 걸려요.|Aniyo, georeoseo obun jeongdo geollyeoyo.|Non, environ 5 minutes à pied.
+A|감사합니다!|Gamsahamnida!|Merci beaucoup !
+B|천만에요.|Cheonmaneyo.|De rien.
+`},
+{id:"gare",note:"Pour l’heure, on utilise les chiffres natifs (열 시, « dix heures ») ; pour les minutes et les prix, les chiffres sino-coréens (삼십 분, « trente minutes »).",lines:`
+A|부산 가는 표 한 장 주세요.|Busan ganeun pyo han jang juseyo.|Un billet pour Busan, s’il vous plaît.
+B|몇 시 기차로 드릴까요?|Myeot si gicharo deurilkkayo?|Pour le train de quelle heure ?
+A|제일 빠른 걸로 주세요.|Jeil ppareun geollo juseyo.|Le premier qui part, s’il vous plaît.
+B|10시 30분 KTX 있어요. 59,800원입니다.|Yeol-si samsip-bun KTX isseoyo. Oman-gucheon-palbaek-wonimnida.|Il y a un KTX à 10 h 30. Ça fait 59 800 wons.
+A|몇 번 타는 곳이에요?|Myeot beon taneun gosieyo?|C’est quel quai ?
+B|7번 타는 곳이에요.|Chil-beon taneun gosieyo.|Quai numéro 7.
+`},
+{id:"hotel",note:"Le 5층 coréen correspond à notre 4e étage, car le 1층 est le rez-de-chaussée.",lines:`
+B|어서 오세요.|Eoseo oseyo.|Bienvenue.
+A|체크인하려고요. 마리 이름으로 예약했어요.|Chekeuin-haryeogoyo. Mari ireumeuro yeyakaesseoyo.|Je voudrais faire le check-in. J’ai réservé au nom de Marie.
+B|여권 좀 보여 주세요.|Yeogwon jom boyeo juseyo.|Votre passeport, s’il vous plaît.
+B|방은 5층 503호입니다.|Bang-eun o-cheung obaeksam-ho-imnida.|Votre chambre est la 503, au 5e étage.
+A|아침 식사는 몇 시부터예요?|Achim siksaneun myeot sibuteoyeyo?|Le petit-déjeuner commence à quelle heure ?
+B|7시부터 10시까지예요.|Ilgop-sibuteo yeol-sikkajiyeyo.|De 7 h à 10 h.
+`},
+{id:"shop",note:"Dans les marchés (Namdaemun, Dongdaemun), on peut négocier : 좀 깎아 주세요 (jom kkakka juseyo), « faites-moi un prix ».",lines:`
+A|이거 얼마예요?|Igeo eolmayeyo?|Combien coûte ceci ?
+B|3만 5천 원이에요.|Samman ocheon wonieyo.|35 000 wons.
+A|다른 색깔 있어요?|Dareun saekkal isseoyo?|Vous l’avez dans une autre couleur ?
+B|네, 검은색하고 흰색 있어요.|Ne, geomeunsaekago huinsaek isseoyo.|Oui, en noir et en blanc.
+A|그럼 검은색으로 주세요. 카드 돼요?|Geureom geomeunsaegeuro juseyo. Kadeu dwaeyo?|Alors le noir, s’il vous plaît. Vous prenez la carte ?
+B|네, 됩니다.|Ne, doemnida.|Oui, bien sûr.
+`},
+{id:"temple",note:"Dans un temple, on salue les moines en joignant les mains (합장, hapjang) et on parle à voix basse.",lines:`
+A|실례합니다. 여기서 사진 찍어도 돼요?|Sillyehamnida. Yeogiseo sajin jjigeodo dwaeyo?|Excusez-moi. Je peux prendre des photos ici ?
+B|밖에서는 괜찮지만 법당 안에서는 안 돼요.|Bakkeseoneun gwaenchanchiman beopdang aneseoneun an dwaeyo.|Dehors oui, mais pas à l’intérieur de la salle de prière.
+A|신발을 벗어야 해요?|Sinbareul beoseoya haeyo?|Il faut enlever ses chaussures ?
+B|네, 법당에 들어갈 때 벗으세요.|Ne, beopdange deureogal ttae beoseuseyo.|Oui, quand vous entrez dans la salle de prière.
+A|템플스테이도 할 수 있어요?|Tempeulseutei-do hal su isseoyo?|On peut aussi faire un temple stay ?
+B|네, 미리 예약하시면 돼요.|Ne, miri yeyakasimyeon dwaeyo.|Oui, il suffit de réserver à l’avance.
+`},
+{id:"anime",b:"Jiwoo",note:"Les 만화 카페 (cafés manga) permettent de lire des BD à volonté en payant à l’heure, souvent avec des snacks.",lines:`
+B|마리 씨, 애니메이션 좋아해요?|Mari ssi, aenimeisyeon joahaeyo?|Marie, tu aimes les anime ?
+A|네, 정말 좋아해요! 웹툰도 많이 봐요.|Ne, jeongmal joahaeyo! Weptundo mani bwayo.|Oui, j’adore ! Je lis aussi beaucoup de webtoons.
+B|저도요! 제일 좋아하는 웹툰이 뭐예요?|Jeodoyo! Jeil joahaneun weptuni mwoyeyo?|Moi aussi ! C’est quoi ton webtoon préféré ?
+A|요즘은 판타지 웹툰을 많이 봐요.|Yojeumeun pantaji weptuneul mani bwayo.|En ce moment, je lis beaucoup de webtoons fantasy.
+B|그럼 이번 주말에 같이 만화 카페에 갈래요?|Geureom ibeon jumare gachi manhwa kapee gallaeyo?|Alors, ça te dit d’aller dans un café manga ce week-end ?
+A|좋아요! 가요!|Joayo! Gayo!|Avec plaisir ! On y va !
+`}
+],
+zh:[
+{id:"intro",b:"Li Ming",note:"哪里哪里 (nǎlǐ nǎlǐ, littéralement « où ça, où ça ? ») est une réponse modeste à un compliment.",lines:`
+B|你好！我叫李明。|Nǐ hǎo! Wǒ jiào Lǐ Míng.|Bonjour ! Je m’appelle Li Ming.
+A|你好！我叫玛丽，我是法国人。|Nǐ hǎo! Wǒ jiào Mǎlì, wǒ shì Fǎguórén.|Bonjour ! Je m’appelle Marie, je suis française.
+B|你是学生吗？|Nǐ shì xuésheng ma?|Tu es étudiante ?
+A|是的，我在学习中文。|Shì de, wǒ zài xuéxí Zhōngwén.|Oui, j’apprends le chinois.
+B|你的中文很好！|Nǐ de Zhōngwén hěn hǎo!|Ton chinois est très bon !
+A|哪里哪里，还差得远呢。认识你很高兴！|Nǎlǐ nǎlǐ, hái chà de yuǎn ne. Rènshi nǐ hěn gāoxìng!|Oh non, j’ai encore du chemin. Ravie de te connaître !
+`},
+{id:"resto",note:"块 (kuài) est la façon courante de dire « yuan » à l’oral. Pas de pourboire en Chine.",lines:`
+B|欢迎光临！几位？|Huānyíng guānglín! Jǐ wèi?|Bienvenue ! Vous êtes combien ?
+A|两位。|Liǎng wèi.|Deux personnes.
+B|这边请。这是菜单。|Zhèbiān qǐng. Zhè shì càidān.|Par ici. Voici le menu.
+A|我们要一个宫保鸡丁和两碗米饭。|Wǒmen yào yí ge gōngbǎo jīdīng hé liǎng wǎn mǐfàn.|Nous voudrions un poulet kung pao et deux bols de riz.
+B|喝点什么？|Hē diǎn shénme?|Et à boire ?
+A|两杯茶，谢谢。|Liǎng bēi chá, xièxie.|Deux thés, merci.
+A|服务员，买单！|Fúwùyuán, mǎidān!|S’il vous plaît, l’addition !
+B|一共八十五块。|Yígòng bāshíwǔ kuài.|Ça fait 85 yuans en tout.
+`},
+{id:"chemin",note:"请问 (qǐngwèn, « puis-je demander ») est la meilleure façon d’aborder un inconnu.",lines:`
+A|请问，地铁站在哪里？|Qǐngwèn, dìtiězhàn zài nǎlǐ?|Excusez-moi, où est la station de métro ?
+B|一直往前走，到第二个路口往右拐。|Yìzhí wǎng qián zǒu, dào dì-èr ge lùkǒu wǎng yòu guǎi.|Allez tout droit, et au deuxième carrefour, tournez à droite.
+A|远吗？|Yuǎn ma?|C’est loin ?
+B|不远，走路五分钟左右。|Bù yuǎn, zǒulù wǔ fēnzhōng zuǒyòu.|Non, environ cinq minutes à pied.
+A|谢谢！|Xièxie!|Merci !
+B|不客气。|Bú kèqi.|De rien.
+`},
+{id:"gare",note:"En Chine, les billets de train sont nominatifs : il faut son passeport pour les acheter et pour passer les contrôles.",lines:`
+A|你好，我要一张去上海的票。|Nǐ hǎo, wǒ yào yì zhāng qù Shànghǎi de piào.|Bonjour, je voudrais un billet pour Shanghai.
+B|哪天的？|Nǎ tiān de?|Pour quel jour ?
+A|明天上午的。|Míngtiān shàngwǔ de.|Demain matin.
+B|九点的高铁，二等座，可以吗？|Jiǔ diǎn de gāotiě, èr děng zuò, kěyǐ ma?|Un train à grande vitesse à 9 h, en seconde classe, ça vous va ?
+A|好的。需要护照吗？|Hǎo de. Xūyào hùzhào ma?|D’accord. Il faut le passeport ?
+B|对，请给我您的护照。|Duì, qǐng gěi wǒ nín de hùzhào.|Oui, donnez-moi votre passeport, s’il vous plaît.
+`},
+{id:"hotel",note:"En Chine aussi, le 一楼 est le rez-de-chaussée. Les numéros de chambre se lisent chiffre par chiffre : 五〇三 = wǔ líng sān.",lines:`
+B|您好，欢迎光临！|Nín hǎo, huānyíng guānglín!|Bonjour, bienvenue !
+A|你好，我要办理入住。我用玛丽的名字预订了。|Nǐ hǎo, wǒ yào bànlǐ rùzhù. Wǒ yòng Mǎlì de míngzi yùdìng le.|Bonjour, je voudrais faire le check-in. J’ai réservé au nom de Marie.
+B|请出示您的护照。|Qǐng chūshì nín de hùzhào.|Veuillez présenter votre passeport.
+B|您的房间是五〇三，在五楼。|Nín de fángjiān shì wǔ líng sān, zài wǔ lóu.|Votre chambre est la 503, au 5e étage.
+A|早餐几点开始？|Zǎocān jǐ diǎn kāishǐ?|Le petit-déjeuner commence à quelle heure ?
+B|早上七点到十点。|Zǎoshang qī diǎn dào shí diǎn.|De 7 h à 10 h.
+`},
+{id:"shop",note:"En Chine, on paie presque tout par QR code avec WeChat Pay (微信支付) ou Alipay (支付宝).",lines:`
+A|这个多少钱？|Zhège duōshao qián?|Combien coûte ceci ?
+B|一百二十块。|Yìbǎi èrshí kuài.|120 yuans.
+A|太贵了！便宜一点吧。|Tài guì le! Piányi yìdiǎn ba.|C’est trop cher ! Faites-moi un prix.
+B|好吧，一百块。|Hǎo ba, yìbǎi kuài.|Bon d’accord, 100 yuans.
+A|可以用微信支付吗？|Kěyǐ yòng Wēixìn zhīfù ma?|Je peux payer avec WeChat Pay ?
+B|可以，请扫这个码。|Kěyǐ, qǐng sǎo zhège mǎ.|Oui, scannez ce QR code.
+`},
+{id:"temple",note:"Dans les temples, on ne marche pas sur le seuil des portes : on passe par-dessus.",lines:`
+A|请问，门票多少钱？|Qǐngwèn, ménpiào duōshao qián?|Excusez-moi, combien coûte l’entrée ?
+B|四十块，学生半价。|Sìshí kuài, xuésheng bànjià.|40 yuans, demi-tarif pour les étudiants.
+A|太好了，我是学生。这是我的学生证。|Tài hǎo le, wǒ shì xuésheng. Zhè shì wǒ de xuéshengzhèng.|Super, je suis étudiante. Voici ma carte d’étudiante.
+B|好的，二十块。|Hǎo de, èrshí kuài.|Très bien, 20 yuans.
+A|里面可以拍照吗？|Lǐmiàn kěyǐ pāizhào ma?|On peut prendre des photos à l’intérieur ?
+B|院子里可以，大殿里不可以。|Yuànzi lǐ kěyǐ, dàdiàn lǐ bù kěyǐ.|Dans la cour oui, dans le grand hall non.
+`},
+{id:"anime",b:"Xiaoyu",note:"过 (guo) après un verbe = « avoir déjà fait » : 看过 = « avoir déjà vu ».",lines:`
+B|玛丽，你喜欢看动漫吗？|Mǎlì, nǐ xǐhuan kàn dòngmàn ma?|Marie, tu aimes les anime ?
+A|超喜欢！我每天都看。|Chāo xǐhuan! Wǒ měitiān dōu kàn.|J’adore ! J’en regarde tous les jours.
+B|你最喜欢哪部？|Nǐ zuì xǐhuan nǎ bù?|Lequel tu préfères ?
+A|我最喜欢宫崎骏的电影。|Wǒ zuì xǐhuan Gōngqí Jùn de diànyǐng.|Je préfère les films de Miyazaki.
+B|我也是！你看过《千与千寻》吗？|Wǒ yě shì! Nǐ kàn guo «Qiān yǔ Qiānxún» ma?|Moi aussi ! Tu as vu « Le Voyage de Chihiro » ?
+A|看过三次了！|Kàn guo sān cì le!|Je l’ai vu trois fois !
+`}
+],
+en:[
+{id:"intro",b:"Jack",note:"« Nice to meet you » se dit à la première rencontre ; ensuite, on dit « Good to see you ».",lines:`
+B|Hi! I'm Jack. Nice to meet you.||Salut ! Moi, c’est Jack. Enchanté.
+A|Nice to meet you too. I'm Marie, I'm from France.||Enchantée aussi. Je suis Marie, je viens de France.
+B|Oh, cool! Are you a student?||Oh, cool ! Tu es étudiante ?
+A|Yes, I'm at university. I'm learning English.||Oui, je suis à l’université. J’apprends l’anglais.
+B|Your English is really good!||Ton anglais est vraiment bon !
+A|Thanks, but I still have a lot to learn.||Merci, mais j’ai encore beaucoup à apprendre.
+`},
+{id:"resto",note:"Aux États-Unis, on laisse 15 à 20 % de pourboire (tip) au restaurant. Au Royaume-Uni, on dit « the bill » plutôt que « the check ».",lines:`
+B|Hi there! How many?||Bonjour ! Vous êtes combien ?
+A|Two, please.||Deux, s’il vous plaît.
+B|Right this way. Here are your menus.||Par ici. Voici vos menus.
+A|Could we get two burgers, please?||On pourrait avoir deux burgers, s’il vous plaît ?
+B|Sure. Anything to drink?||Bien sûr. Quelque chose à boire ?
+A|Just tap water, thanks.||Juste une carafe d’eau, merci.
+A|Could we have the check, please?||On pourrait avoir l’addition, s’il vous plaît ?
+B|Here you go. That's thirty-two dollars.||Voilà. Ça fait 32 dollars.
+`},
+{id:"chemin",note:"« Take the second right » = « prenez la deuxième à droite ». On dit aussi « turn left / turn right ».",lines:`
+A|Excuse me, how do I get to the train station?||Excusez-moi, comment je vais à la gare ?
+B|Go straight ahead and take the second right.||Allez tout droit et prenez la deuxième à droite.
+A|Is it far?||C’est loin ?
+B|No, it's about a five-minute walk.||Non, c’est à environ cinq minutes à pied.
+A|Thank you so much!||Merci beaucoup !
+B|No problem!||Pas de souci !
+`},
+{id:"gare",note:"« Single / return » est britannique. Aux États-Unis, on dit « one-way / round trip ».",lines:`
+A|Hi, one ticket to Oxford, please.||Bonjour, un billet pour Oxford, s’il vous plaît.
+B|Single or return?||Aller simple ou aller-retour ?
+A|Return, please.||Aller-retour, s’il vous plaît.
+B|That's thirty-four pounds fifty.||Ça fait 34,50 livres.
+A|Which platform does it leave from?||Il part de quel quai ?
+B|Platform four.||Quai numéro 4.
+`},
+{id:"hotel",note:"Aux États-Unis, le « first floor » est le rez-de-chaussée ; au Royaume-Uni, c’est le « ground floor ».",lines:`
+B|Good evening, welcome!||Bonsoir, bienvenue !
+A|Hi, I'd like to check in. I have a reservation under Marie.||Bonjour, je voudrais faire le check-in. J’ai une réservation au nom de Marie.
+B|Can I see your passport, please?||Je peux voir votre passeport, s’il vous plaît ?
+B|Here's your key. You're in room 503.||Voici votre clé. Vous êtes dans la chambre 503.
+A|What time is breakfast?||À quelle heure est le petit-déjeuner ?
+B|From seven to ten a.m.||De 7 h à 10 h.
+`},
+{id:"shop",note:"Aux États-Unis, les prix affichés sont souvent hors taxes : la taxe s’ajoute à la caisse.",lines:`
+A|Excuse me, how much is this?||Excusez-moi, combien ça coûte ?
+B|It's twenty-five dollars.||25 dollars.
+A|Do you have it in another color?||Vous l’avez dans une autre couleur ?
+B|Yes, we have it in black and white.||Oui, en noir et en blanc.
+A|I'll take the black one. Can I pay by card?||Je prends le noir. Je peux payer par carte ?
+B|Sure, just tap here.||Bien sûr, approchez votre carte ici.
+`},
+{id:"temple",t:"Visiter une cathédrale",note:"En Angleterre, la visite des grandes cathédrales est souvent payante, mais l’entrée aux offices religieux est gratuite.",lines:`
+A|Hi, how much is a ticket?||Bonjour, combien coûte un billet ?
+B|It's twenty-five pounds, or twenty-two with a student card.||25 livres, ou 22 avec une carte d’étudiant.
+A|Here's my student card. Can I take photos inside?||Voici ma carte d’étudiante. Je peux prendre des photos à l’intérieur ?
+B|Yes, but no flash, please.||Oui, mais sans flash, s’il vous plaît.
+A|Is there an audio guide in French?||Il y a un audioguide en français ?
+B|Yes, it's included. Enjoy your visit!||Oui, il est compris. Bonne visite !
+`},
+{id:"anime",b:"Sam",note:"« To be into something » = être fan de quelque chose : I’m into manga.",lines:`
+B|Hey Marie, are you into anime?||Salut Marie, tu es fan d’anime ?
+A|Totally! I watch it all the time.||Carrément ! J’en regarde tout le temps.
+B|What's your favorite?||C’est quoi ton préféré ?
+A|I love Studio Ghibli movies.||J’adore les films du studio Ghibli.
+B|Me too! Have you seen Spirited Away?||Moi aussi ! Tu as vu Le Voyage de Chihiro ?
+A|Yeah, three times! No spoilers for the new one, though!||Oui, trois fois ! Mais pas de spoiler sur le nouveau !
+`}
+]
+};
+
+/* ================= GRAMMAIRE ================= */
+const GRAMMAR={
+ja:[
+{t:"Phrase de base : A は B です",d:"Le japonais met le verbe à la fin (sujet, objet, verbe). は (prononcé « wa ») indique le thème de la phrase ; です (desu) veut dire « est, sont » de façon polie. Au négatif, on remplace です par じゃありません (ja arimasen).",p:"A は B です",ex:[["私は学生です。","Watashi wa gakusei desu.","Je suis étudiant(e)."],["これはお茶です。","Kore wa ocha desu.","Ceci est du thé."],["私は先生じゃありません。","Watashi wa sensei ja arimasen.","Je ne suis pas professeur."]],tip:"On omet souvent 私は quand on parle de soi : 学生です suffit."},
+{t:"Poser une question avec か",d:"Pour faire une question, on ajoute simplement か (ka) à la fin. L’ordre des mots ne change pas. Les mots interrogatifs (何 « quoi », どこ « où ») prennent la place de la réponse.",p:"… ですか？",ex:[["学生ですか？","Gakusei desu ka?","Vous êtes étudiant(e) ?"],["これは何ですか？","Kore wa nan desu ka?","Qu’est-ce que c’est ?"],["トイレはどこですか？","Toire wa doko desu ka?","Où sont les toilettes ?"]],tip:"何 se lit なん (nan) devant です."},
+{t:"Les particules を, に, で",d:"Les particules se placent après le mot qu’elles marquent. を (o) marque l’objet, に (ni) la destination ou l’heure, で (de) le lieu où se passe l’action ou le moyen utilisé.",p:"Nを · Nに · Nで",ex:[["水を飲みます。","Mizu o nomimasu.","Je bois de l’eau."],["東京に行きます。","Tōkyō ni ikimasu.","Je vais à Tokyo."],["電車で行きます。","Densha de ikimasu.","J’y vais en train."],["レストランで食べます。","Resutoran de tabemasu.","Je mange au restaurant."]],tip:"を s’écrit « wo » mais se prononce « o »."},
+{t:"Les verbes polis en -ます",d:"La forme en -ます est la forme polie à utiliser avec les inconnus. Il y a quatre terminaisons à connaître. Le japonais n’a pas de futur à part : 食べます veut dire « je mange » ou « je mangerai ».",p:"-ます · -ません · -ました · -ませんでした",ex:[["食べます","tabemasu","je mange"],["食べません","tabemasen","je ne mange pas"],["食べました","tabemashita","j’ai mangé"],["食べませんでした","tabemasen deshita","je n’ai pas mangé"]],tip:"Le verbe ne change pas selon la personne : 食べます = je mange, tu manges, nous mangeons…"},
+{t:"Demander : をください, てください",d:"Pour demander un objet : objet + をください (o kudasai). Pour demander à quelqu’un de faire quelque chose : verbe à la forme en -て + ください.",p:"N をください · V-て ください",ex:[["コーヒーをください。","Kōhī o kudasai.","Un café, s’il vous plaît."],["ちょっと待ってください。","Chotto matte kudasai.","Attendez un instant, s’il vous plaît."],["ゆっくり話してください。","Yukkuri hanashite kudasai.","Parlez lentement, s’il vous plaît."]],tip:"お願いします (onegai shimasu) marche aussi : 水をお願いします."},
+{t:"Les adjectifs en い et en な",d:"Il existe deux familles. Les adjectifs en い (高い, 安い) font leur négatif en remplaçant い par くない. Les adjectifs en な (きれい, 静か) prennent な devant un nom.",p:"高い → 高くない · きれいな町",ex:[["このかばんは高いです。","Kono kaban wa takai desu.","Ce sac est cher."],["高くないです。","Takakunai desu.","Ce n’est pas cher."],["きれいな町ですね。","Kirei na machi desu ne.","C’est une jolie ville, n’est-ce pas ?"]],tip:"いい (bon) est irrégulier : son négatif est よくない (yokunai)."},
+{t:"Il y a : あります, います",d:"あります (arimasu) s’utilise pour les objets et les plantes, います (imasu) pour les personnes et les animaux. Le lieu est marqué par に.",p:"lieu に N が あります / います",ex:[["あそこにトイレがあります。","Asoko ni toire ga arimasu.","Il y a des toilettes là-bas."],["駅の前にコンビニがあります。","Eki no mae ni konbini ga arimasu.","Il y a une supérette devant la gare."],["猫がいます。","Neko ga imasu.","Il y a un chat."]],tip:"Au restaurant : 英語のメニューはありますか？ (Eigo no menyū wa arimasu ka?) « Avez-vous un menu en anglais ? »"},
+{t:"Vouloir faire : -たいです",d:"Pour dire « je veux faire », on prend le verbe en -ます, on retire ます et on ajoute たいです.",p:"行きます → 行きたいです",ex:[["京都に行きたいです。","Kyōto ni ikitai desu.","Je veux aller à Kyoto."],["お寿司が食べたいです。","O-sushi ga tabetai desu.","Je veux manger des sushis."],["富士山が見たいです。","Fujisan ga mitai desu.","Je veux voir le mont Fuji."]],tip:"Au négatif : 行きたくないです (ikitakunai desu), « je ne veux pas y aller »."}
+],
+ko:[
+{t:"Le thème 은/는 et « être » : 이에요/예요",d:"Le coréen met le verbe à la fin. 은 (eun, après consonne) ou 는 (neun, après voyelle) marque le thème. Pour dire « être », on ajoute 이에요 (ieyo) après une consonne ou 예요 (yeyo) après une voyelle.",p:"A은/는 B이에요/예요",ex:[["저는 학생이에요.","Jeoneun haksaengieyo.","Je suis étudiant(e)."],["이건 커피예요.","Igeon keopiyeyo.","Ceci est du café."],["저는 프랑스 사람이에요.","Jeoneun peurangseu saramieyo.","Je suis français(e)."]],tip:"Négatif : 이/가 아니에요. 저는 선생님이 아니에요 « Je ne suis pas professeur »."},
+{t:"Le sujet 이/가 et l’objet 을/를",d:"이 (i, après consonne) ou 가 (ga, après voyelle) marquent le sujet. 을 (eul, après consonne) ou 를 (reul, après voyelle) marquent l’objet. À l’oral, on les omet souvent.",p:"N이/가 · N을/를",ex:[["물을 마셔요.","Mureul masyeoyo.","Je bois de l’eau."],["커피를 마셔요.","Keopireul masyeoyo.","Je bois du café."],["비가 와요.","Biga wayo.","Il pleut."]],tip:"Regarde la dernière syllabe : si elle finit par une consonne (물), prends la forme qui commence par une voyelle (을)."},
+{t:"Le présent poli : -아요/-어요",d:"On retire 다 du verbe. Si la dernière voyelle est ㅏ ou ㅗ, on ajoute 아요 ; sinon 어요. Les verbes en 하다 deviennent 해요. C’est la forme polie de tous les jours.",p:"가다 → 가요 · 먹다 → 먹어요 · 하다 → 해요",ex:[["학교에 가요.","Hakgyoe gayo.","Je vais à l’école."],["밥을 먹어요.","Babeul meogeoyo.","Je mange."],["한국어를 공부해요.","Hangugeoreul gongbuhaeyo.","J’étudie le coréen."]],tip:"Pour poser une question, garde la même forme et monte la voix : 가요? « Tu y vas ? »"},
+{t:"La négation : 안 et 못",d:"안 (an) devant le verbe = « ne … pas » (par choix). 못 (mot) = « ne peut pas » (impossibilité).",p:"안 + V · 못 + V",ex:[["고기를 안 먹어요.","Gogireul an meogeoyo.","Je ne mange pas de viande."],["오늘은 못 가요.","Oneureun mot gayo.","Je ne peux pas y aller aujourd’hui."],["안 매워요.","An maewoyo.","Ce n’est pas épicé."]],tip:"Pour les verbes en 하다, 안 se place juste avant 하다 : 공부 안 해요."},
+{t:"Le passé : -았어요/-었어요",d:"Même règle que pour le présent : ㅏ ou ㅗ → 았어요, sinon 었어요, et 하다 → 했어요.",p:"갔어요 · 먹었어요 · 했어요",ex:[["서울에 갔어요.","Seoure gasseoyo.","Je suis allé(e) à Séoul."],["비빔밥을 먹었어요.","Bibimbabeul meogeosseoyo.","J’ai mangé un bibimbap."],["예약했어요.","Yeyakaesseoyo.","J’ai réservé."]],tip:"잘 먹었습니다 (« j’ai bien mangé ») se dit après le repas pour remercier."},
+{t:"Demander poliment : 주세요",d:"Nom + 주세요 (juseyo) = « donnez-moi …, s’il vous plaît ». Verbe en -아/어 + 주세요 = « faites … pour moi, s’il vous plaît ».",p:"N 주세요 · V-아/어 주세요",ex:[["물 주세요.","Mul juseyo.","De l’eau, s’il vous plaît."],["이거 하나 주세요.","Igeo hana juseyo.","Un de ceux-ci, s’il vous plaît."],["천천히 말해 주세요.","Cheoncheonhi malhae juseyo.","Parlez lentement, s’il vous plaît."]],tip:"Ajoute 좀 (jom, « un peu ») pour adoucir : 물 좀 주세요."},
+{t:"Les lieux : 에 et 에서",d:"에 (e) indique la destination ou l’endroit où l’on se trouve. 에서 (eseo) indique l’endroit où se passe une action, ou le point de départ.",p:"N에 가요 · N에서 V",ex:[["명동에 가요.","Myeongdonge gayo.","Je vais à Myeongdong."],["호텔에 있어요.","Hotere isseoyo.","Je suis à l’hôtel."],["식당에서 먹어요.","Sikdangeseo meogeoyo.","Je mange au restaurant."]],tip:"프랑스에서 왔어요 « Je viens de France » : ici, 에서 veut dire « depuis »."},
+{t:"Vouloir : -고 싶어요",d:"Radical du verbe (sans 다) + 고 싶어요 (go sipeoyo) = « je veux faire ».",p:"가다 → 가고 싶어요",ex:[["부산에 가고 싶어요.","Busane gago sipeoyo.","Je veux aller à Busan."],["김치찌개를 먹고 싶어요.","Gimchijjigaereul meokgo sipeoyo.","Je veux manger un ragoût de kimchi."],["한복을 입어 보고 싶어요.","Hanbogeul ibeo bogo sipeoyo.","Je veux essayer un hanbok."]],tip:"Pour un objet : … 사고 싶어요 « je veux acheter … »."}
+],
+zh:[
+{t:"Sujet + verbe + objet",d:"Comme en français, l’ordre est sujet, verbe, objet. Bonne nouvelle : les verbes ne se conjuguent jamais. 吃 (chī) veut dire « mange, mangeons, mangé… » ; c’est le contexte qui précise.",p:"S + V + O",ex:[["我喝茶。","Wǒ hē chá.","Je bois du thé."],["他吃米饭。","Tā chī mǐfàn.","Il mange du riz."],["我们去北京。","Wǒmen qù Běijīng.","Nous allons à Pékin."]],tip:"Le moment se précise avec des mots comme 今天 (aujourd’hui) ou 明天 (demain), en début de phrase."},
+{t:"Être : 是, et les adjectifs avec 很",d:"是 (shì) relie deux noms : « A est B ». Mais devant un adjectif, on n’utilise pas 是 ! On met 很 (hěn), qui veut dire « très » mais sert surtout de lien.",p:"A 是 B · S 很 adj.",ex:[["我是学生。","Wǒ shì xuésheng.","Je suis étudiant(e)."],["我不是老师。","Wǒ bú shì lǎoshī.","Je ne suis pas professeur."],["这个很好吃。","Zhège hěn hǎochī.","C’est très bon."]],tip:"我很好 = « je vais bien ». On ne dit jamais 我是好."},
+{t:"Les questions : 吗 et les mots interrogatifs",d:"Ajoute 吗 (ma) à la fin d’une phrase pour poser une question fermée. Avec un mot interrogatif (什么, 哪里, 谁), pas de 吗 : le mot prend simplement la place de la réponse.",p:"… 吗？ · 这是什么？",ex:[["你是法国人吗？","Nǐ shì Fǎguórén ma?","Tu es français(e) ?"],["这是什么？","Zhè shì shénme?","Qu’est-ce que c’est ?"],["地铁站在哪里？","Dìtiězhàn zài nǎlǐ?","Où est la station de métro ?"]],tip:"Pour répondre « oui », on répète le verbe : 你是学生吗？— 是。"},
+{t:"La négation : 不 et 没",d:"不 (bù) nie le présent, le futur et les habitudes. 没 (méi) nie le passé et le verbe 有 « avoir » (没有).",p:"不 + V · 没 + V · 没有",ex:[["我不喝咖啡。","Wǒ bù hē kāfēi.","Je ne bois pas de café."],["我昨天没去。","Wǒ zuótiān méi qù.","Je n’y suis pas allé(e) hier."],["我没有现金。","Wǒ méiyǒu xiànjīn.","Je n’ai pas d’espèces."]],tip:"不 se prononce bú devant un 4e ton : 不是 bú shì, 不去 bú qù."},
+{t:"Les classificateurs : 个, 张, 杯…",d:"Entre un nombre et un nom, il faut un classificateur. 个 (ge) est le plus courant et passe partout. Pour « deux », on dit 两 (liǎng) et non 二.",p:"nombre + classificateur + nom",ex:[["一个人","yí ge rén","une personne"],["两张票","liǎng zhāng piào","deux billets"],["三杯茶","sān bēi chá","trois tasses de thé"],["四碗米饭","sì wǎn mǐfàn","quatre bols de riz"]],tip:"张 pour les choses plates (billets, tables), 杯 pour les verres et les tasses, 碗 pour les bols."},
+{t:"Action terminée : 了",d:"了 (le) après le verbe ou en fin de phrase montre qu’une action est accomplie ou qu’une situation a changé.",p:"V + 了",ex:[["我吃了。","Wǒ chī le.","J’ai mangé."],["我买了两张票。","Wǒ mǎi le liǎng zhāng piào.","J’ai acheté deux billets."],["太贵了！","Tài guì le!","C’est trop cher !"]],tip:"太…了 = « trop … » : 太好了！« Super ! »"},
+{t:"Les lieux : 在",d:"在 (zài) veut dire « se trouver à ». Placé avant le verbe, il indique où se passe l’action.",p:"S 在 lieu · S 在 lieu + V",ex:[["我在上海。","Wǒ zài Shànghǎi.","Je suis à Shanghai."],["洗手间在哪里？","Xǐshǒujiān zài nǎlǐ?","Où sont les toilettes ?"],["我在餐厅吃饭。","Wǒ zài cāntīng chīfàn.","Je mange au restaurant."]],tip:"Contrairement au français, le lieu se place avant le verbe."},
+{t:"Vouloir : 要 et 想",d:"要 (yào) = « vouloir, prendre » : direct, très utilisé pour commander. 想 (xiǎng) = « j’aimerais, j’ai envie de » : plus doux.",p:"要 + N/V · 想 + V",ex:[["我要这个。","Wǒ yào zhège.","Je prends celui-ci."],["我要两杯咖啡。","Wǒ yào liǎng bēi kāfēi.","Je voudrais deux cafés."],["我想去长城。","Wǒ xiǎng qù Chángchéng.","J’aimerais aller à la Grande Muraille."]],tip:"Au négatif, 不想 (bù xiǎng) « je n’ai pas envie » est plus doux que 不要 « je n’en veux pas »."}
+],
+en:[
+{t:"Être et avoir : to be, to have",d:"« To be » se conjugue : I am, you are, he / she / it is, we / they are. À l’oral, on contracte : I’m, you’re, she’s. « To have » : I have, he / she has.",p:"I am · she is · they are · he has",ex:[["I'm French.","","Je suis français(e)."],["She's a student.","","Elle est étudiante."],["He has two brothers.","","Il a deux frères."]],tip:"Pour l’âge, l’anglais utilise « be » : I’m 20 = « j’ai 20 ans »."},
+{t:"Le présent simple",d:"Pour les habitudes et les vérités générales. On ajoute -s à la 3e personne (he, she, it). Au négatif : don’t / doesn’t + verbe.",p:"I work · she works · I don't work",ex:[["I live in Paris.","","J’habite à Paris."],["She works in a hotel.","","Elle travaille dans un hôtel."],["He doesn't eat meat.","","Il ne mange pas de viande."]],tip:"Après doesn’t, le verbe perd son -s : she doesn’t work."},
+{t:"Le présent continu : be + -ing",d:"Pour ce qui se passe en ce moment. On utilise be (am, is, are) + verbe en -ing.",p:"I'm eating · they're waiting",ex:[["I'm waiting for the bus.","","J’attends le bus."],["What are you doing?","","Qu’est-ce que tu fais ?"],["It's raining.","","Il pleut."]],tip:"Les verbes d’état (like, know, want) ne se mettent pas en -ing : on dit I know, pas « I’m knowing »."},
+{t:"Le passé simple (prétérit)",d:"Pour une action terminée. Verbes réguliers : + -ed. Les irréguliers s’apprennent par cœur : go → went, eat → ate, see → saw, buy → bought.",p:"I visited · I went · I didn't go",ex:[["I visited London last year.","","J’ai visité Londres l’année dernière."],["We ate sushi yesterday.","","Nous avons mangé des sushis hier."],["Did you sleep well?","","Tu as bien dormi ?"]],tip:"Avec did / didn’t, le verbe revient à la base : Did you go? (pas « Did you went? »)."},
+{t:"Poser une question : do, does, did",d:"Pour la plupart des verbes, on met do (présent), does (3e personne) ou did (passé) devant le sujet. Avec be et can, on inverse simplement.",p:"Do you…? · Does she…? · Did they…?",ex:[["Do you speak French?","","Tu parles français ?"],["Where does she live?","","Où habite-t-elle ?"],["Are you ready?","","Tu es prêt(e) ?"]],tip:"Mots interrogatifs : what, where, when, who, why, how, how much."},
+{t:"Le futur : will et going to",d:"« Will » pour une décision prise sur le moment ou une prédiction. « Going to » pour un projet déjà prévu.",p:"I'll… · I'm going to…",ex:[["I'll take the black one.","","Je prends le noir."],["I'm going to visit Tokyo next month.","","Je vais visiter Tokyo le mois prochain."],["It will be sunny tomorrow.","","Il fera beau demain."]],tip:"À l’oral, will se contracte : I’ll, you’ll, it’ll."},
+{t:"La politesse : could, would, can",d:"En anglais, on adoucit les demandes avec could et would. « I want » sonne brusque ; « I’d like » est la forme polie.",p:"Could you…? · I'd like… · Can I…?",ex:[["Could you help me, please?","","Pourriez-vous m’aider, s’il vous plaît ?"],["I'd like a coffee, please.","","Je voudrais un café, s’il vous plaît."],["Can I pay by card?","","Je peux payer par carte ?"]],tip:"Dis « please » et « thank you » souvent : c’est attendu, surtout au Royaume-Uni."},
+{t:"Les articles : a, an, the",d:"a / an = « un, une ». On met « an » devant un son de voyelle (an apple, an hour). « The » = le, la, les, pour une chose précise.",p:"a ticket · an hour · the station",ex:[["I need a ticket.","","J’ai besoin d’un billet."],["The train leaves in an hour.","","Le train part dans une heure."],["Where is the station?","","Où est la gare ?"]],tip:"Pas d’article pour une généralité : I like coffee (pas « the coffee »)."}
+]
+};
+
+/* ================= ÉCRITURE ================= */
+const HIRA="あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもや・ゆ・よらりるれろわ・・・をん・・・・";
+const KATA="アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤ・ユ・ヨラリルレロワ・・・ヲン・・・・";
+const GOJ_ROM="a i u e o ka ki ku ke ko sa shi su se so ta chi tsu te to na ni nu ne no ha hi fu he ho ma mi mu me mo ya - yu - yo ra ri ru re ro wa - - - o n - - - -".split(" ");
+const HIRA_D="がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ";
+const KATA_D="ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ";
+const DAK_ROM="ga gi gu ge go za ji zu ze zo da ji zu de do ba bi bu be bo pa pi pu pe po".split(" ");
+const KO_CONS=[["ㄱ","g / k","가"],["ㄴ","n","나"],["ㄷ","d / t","다"],["ㄹ","r / l","라"],["ㅁ","m","마"],["ㅂ","b / p","바"],["ㅅ","s","사"],["ㅇ","muet / ng","아"],["ㅈ","j","자"],["ㅊ","ch","차"],["ㅋ","k","카"],["ㅌ","t","타"],["ㅍ","p","파"],["ㅎ","h","하"],["ㄲ","kk","까"],["ㄸ","tt","따"],["ㅃ","pp","빠"],["ㅆ","ss","싸"],["ㅉ","jj","짜"]];
+const KO_VOW=[["ㅏ","a","아"],["ㅑ","ya","야"],["ㅓ","eo","어"],["ㅕ","yeo","여"],["ㅗ","o","오"],["ㅛ","yo","요"],["ㅜ","u","우"],["ㅠ","yu","유"],["ㅡ","eu","으"],["ㅣ","i","이"],["ㅐ","ae","애"],["ㅔ","e","에"],["ㅘ","wa","와"],["ㅝ","wo","워"],["ㅚ","oe","외"],["ㅟ","wi","위"],["ㅢ","ui","의"]];
+const KO_I="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ", KO_V="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
+const KO_F=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const B_I="ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ".split(""), B_V="ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣㅐㅔ".split(""), B_F=["","ㄱ","ㄴ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ"];
+const R_I={"ㄱ":"g","ㄴ":"n","ㄷ":"d","ㄹ":"r","ㅁ":"m","ㅂ":"b","ㅅ":"s","ㅇ":"","ㅈ":"j","ㅊ":"ch","ㅋ":"k","ㅌ":"t","ㅍ":"p","ㅎ":"h"};
+const R_V={"ㅏ":"a","ㅑ":"ya","ㅓ":"eo","ㅕ":"yeo","ㅗ":"o","ㅛ":"yo","ㅜ":"u","ㅠ":"yu","ㅡ":"eu","ㅣ":"i","ㅐ":"ae","ㅔ":"e"};
+const R_F={"":"","ㄱ":"k","ㄴ":"n","ㄹ":"l","ㅁ":"m","ㅂ":"p","ㅅ":"t","ㅇ":"ng"};
+const TONES=[
+  {t:1,p:"mā",c:"妈",fr:"maman",d:"Haut et plat, tenu comme une note chantée."},
+  {t:2,p:"má",c:"麻",fr:"chanvre",d:"Monte, comme un « hein ? » étonné."},
+  {t:3,p:"mǎ",c:"马",fr:"cheval",d:"Descend puis remonte. Dans une phrase, il reste souvent juste bas."},
+  {t:4,p:"mà",c:"骂",fr:"gronder",d:"Descend d’un coup sec, comme un « Non ! » ferme."},
+  {t:0,p:"ma",c:"吗",fr:"particule de question",d:"Neutre : léger, court, sans effort."}
+];
+const PINYIN=[
+  ["x","Comme « si », la langue contre les dents du bas.","谢谢","xièxie","merci"],
+  ["q","« tch » doux et soufflé.","去","qù","aller"],
+  ["j","« dj » doux, non soufflé.","鸡","jī","poulet"],
+  ["zh","« dj » avec la langue recourbée vers le palais.","中","zhōng","milieu"],
+  ["ch","« tch » langue recourbée, avec un souffle.","茶","chá","thé"],
+  ["sh","« ch » avec la langue recourbée.","是","shì","être"],
+  ["r","Entre le « r » anglais et le « j » français.","人","rén","personne"],
+  ["c","« ts » avec un souffle.","菜","cài","plat"],
+  ["z","« dz ».","在","zài","se trouver"],
+  ["h","« r » raclé, comme la jota espagnole.","好","hǎo","bien"],
+  ["u / ü","u = « ou ». ü (et u après j, q, x, y) = « u » français.","绿","lǜ","vert"],
+  ["e","Proche de « eu ».","饿","è","avoir faim"]
+];
+const HANZI=[["人","rén","personne"],["口","kǒu","bouche"],["日","rì","soleil, jour"],["月","yuè","lune, mois"],["山","shān","montagne"],["水","shuǐ","eau"],["火","huǒ","feu"],["木","mù","arbre"],["大","dà","grand"],["小","xiǎo","petit"],["中","zhōng","milieu"],["好","hǎo","bien (女 femme + 子 enfant)"]];
+const EN_TIPS=[
+  {t:"Le « th »",d:"La langue entre les dents. Il est sourd dans « think » et sonore dans « this ». Ce n’est ni « s » ni « z ».",ex:["think","this","thank you","mother"]},
+  {t:"Le « h » se prononce",d:"Un petit souffle, comme pour faire de la buée sur une vitre. « Hotel », pas « ôtel ».",ex:["hotel","house","hello","happy"]},
+  {t:"Voyelles courtes et longues",d:"« Ship » (bateau, court) n’est pas « sheep » (mouton, long). « Full » n’est pas « fool ». Le sens change !",ex:["ship","sheep","full","fool"]},
+  {t:"Le -ed du passé",d:"Trois sons : /t/ après un son sourd (worked), /d/ après un son sonore (played), /ɪd/ seulement après t ou d (wanted).",ex:["worked","played","wanted"]},
+  {t:"L’accent tonique",d:"Une syllabe est plus forte que les autres, et elle peut changer de place dans les mots d’une même famille.",ex:["PHOtograph","phoTOgraphy","hoTEL"]},
+  {t:"Le « r » anglais",d:"La langue ne touche rien et recule un peu. Ni r roulé, ni r de gorge.",ex:["red","right","very","car"]},
+  {t:"Le « w »",d:"Comme le « ou » de « oui ».",ex:["water","what","window"]}
+];
+const WRITING_META={
+  ja:{t:"Hiragana & katakana",d:"Les deux alphabets de base, 46 signes chacun",g:"あ"},
+  ko:{t:"L’alphabet hangeul",d:"24 lettres de base et un atelier de syllabes",g:"한"},
+  zh:{t:"Tons & pinyin",d:"Les 4 tons, les sons difficiles, 12 caractères",g:"妈"},
+  en:{t:"Prononciation",d:"Les 7 pièges des francophones en anglais",g:"th"}
+};
+
+/* ================= PRÉPARATION DES DONNÉES ================= */
+const ALL={};
+THEMES.forEach(t=>{
+  t.items=t.data.trim().split("\n").map((line,i)=>{
+    const f=line.split("|").map(s=>s.trim());
+    return {id:t.id+":"+i,theme:t.id,kind:"v",fr:f[0],ja:{w:f[1],kana:f[2],rom:f[3]},ko:{w:f[4],rom:f[5]},zh:{w:f[6],rom:f[7]},en:{w:f[8],rom:""}};
+  });
+  t.items.forEach(e=>{ALL[e.id]=e;});
+});
+PHRASES.forEach(c=>{
+  c.items=c.data.trim().split("\n").map((line,i)=>{
+    const f=line.split("|").map(s=>s.trim());
+    return {id:"p-"+c.id+":"+i,theme:"p-"+c.id,kind:"p",fr:f[0],ja:{w:f[1],kana:"",rom:f[2]},ko:{w:f[3],rom:f[4]},zh:{w:f[5],rom:f[6]},en:{w:f[7],rom:""}};
+  });
+  c.items.forEach(e=>{ALL[e.id]=e;});
+});
+ORDER.forEach(l=>{
+  DIALOGUES[l].forEach(d=>{
+    d.L=d.lines.trim().split("\n").map(line=>{const f=line.split("|");return {s:f[0].trim(),t:f[1].trim(),r:(f[2]||"").trim(),fr:(f[3]||"").trim()};});
+  });
+});
+const GROUPS=[
+  ["Essentiel",["bases","nombres","temps","personnes","nourriture","couleurs","emotions","verbes","adjectifs","questions"]],
+  ["Voyage",["restaurant","transport","hotel","lieux","shopping","meteo","sante"]],
+  ["Culture & loisirs",["temples","anime","loisirs","nature"]]
+];
+function dlgTitle(lang,id){const d=DIALOGUES[lang].find(x=>x.id===id); return (d&&d.t)||DLG_META[id].t;}
+const VOCAB_ALL=THEMES.flatMap(t=>t.items), PHRASE_ALL=PHRASES.flatMap(c=>c.items);
+const TOTAL=VOCAB_ALL.length+PHRASE_ALL.length;
+
+function V(e,lang){
+  const x=e[lang], L=LANGS[lang];
+  return {id:e.id,fr:e.fr.replace("{L}",L.L),w:x.w,kana:x.kana||"",rom:x.rom||"",say:(lang==="ja"&&x.kana)?x.kana:x.w};
+}
+function reading(v,lang){
+  if(lang==="ja") return [v.kana,v.rom].filter(Boolean).join(" · ");
+  return v.rom;
+}
+
+/* ================= ÉTAT ================= */
+const KEY="polyglotte-v1", GOAL=30, NEW_PER_DAY=8, INTERVALS=[0,1,2,4,8,16];
+function defaults(){return {lang:"ja",prog:{ja:{},ko:{},zh:{},en:{}},xp:0,days:{},quiz:{ja:{n:0,best:0},ko:{n:0,best:0},zh:{n:0,best:0},en:{n:0,best:0}},rate:0.9,rom:true,auto:true,dir:"tf"};}
+function load(){
+  let d=defaults();
+  try{const raw=localStorage.getItem(KEY); if(raw){const o=JSON.parse(raw); d=Object.assign(d,o); ORDER.forEach(l=>{d.prog[l]=d.prog[l]||{}; d.quiz[l]=d.quiz[l]||{n:0,best:0};}); d.days=d.days||{};}}catch(e){}
+  if(!LANGS[d.lang]) d.lang="ja";
+  return d;
+}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const UI={tab:"learn",learn:{screen:"home"},review:null,quiz:null,quizSrc:"all",wtab:"hira",kb:{i:"ㅎ",v:"ㅏ",f:"ㄴ"},dlg:{rom:true,tr:true},confirmReset:false};
+
+function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);}
+function addXP(n){S.xp+=n; const k=dayKey(); S.days[k]=(S.days[k]||0)+n;}
+function todayXP(){return S.days[dayKey()]||0;}
+function streak(){let n=0; const d=new Date(); if(!S.days[dayKey(d)]) d.setDate(d.getDate()-1); while(S.days[dayKey(d)]){n++; d.setDate(d.getDate()-1);} return n;}
+function lvl(lang,id){const p=S.prog[lang][id]; if(!p) return 0; return p.b>=3?2:1;}
+function langStats(lang){const p=S.prog[lang]; let known=0,learning=0; Object.keys(p).forEach(id=>{if(!ALL[id]) return; if(p[id].b>=3) known++; else learning++;}); return {known,learning,fresh:TOTAL-known-learning};}
+function grade(id,ok){const p=S.prog[S.lang]; const c=p[id]||{b:0,d:0}; c.b=ok?Math.min(5,c.b+1):0; c.d=today()+INTERVALS[c.b]; p[id]=c; addXP(ok?2:1); save();}
+function dueIds(lang){const p=S.prog[lang], td=today(); return Object.keys(p).filter(id=>ALL[id]&&p[id].d<=td);}
+function freshItems(lang,n){const p=S.prog[lang], out=[]; for(const e of VOCAB_ALL.concat(PHRASE_ALL)){ if(!p[e.id]){out.push(e); if(out.length>=n) break;} } return out;}
+function dailyQueue(lang){return shuffle(dueIds(lang).map(id=>ALL[id])).slice(0,40).concat(freshItems(lang,NEW_PER_DAY));}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const $=s=>document.querySelector(s);
+
+/* ================= VOIX ================= */
+let voices=[];
+const HAS_TTS=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+function loadVoices(){try{voices=window.speechSynthesis.getVoices()||[];}catch(e){voices=[];}}
+if(HAS_TTS){loadVoices(); try{window.speechSynthesis.addEventListener("voiceschanged",()=>{loadVoices(); if(UI.tab==="progress") render();});}catch(e){}}
+const VPREF={ja:["ja-jp","ja"],ko:["ko-kr","ko"],zh:["zh-cn","cmn-hans","cmn","zh-hans","zh-tw","zh"],en:["en-us","en-gb","en"]};
+function voiceFor(lang){
+  if(!voices.length) return null;
+  const norm=v=>String(v.lang||"").toLowerCase().replace("_","-");
+  for(const p of VPREF[lang]){
+    const v=voices.find(v=>{const n=norm(v); if(lang==="zh"&&(n.indexOf("hk")>=0||n.indexOf("yue")>=0)) return false; return n===p||n.startsWith(p+"-")||(p.length===2&&n.startsWith(p));});
+    if(v) return v;
+  }
+  return null;
+}
+function canSpeak(lang){return HAS_TTS&&!!voiceFor(lang);}
+function clean(t){return String(t).replace(/…/g," ").replace(/\s\/\s/g,", ").replace(/[()]/g," ").replace(/\s+/g," ").trim();}
+let warned=false;
+function speak(text,lang,onend){
+  if(!HAS_TTS){ if(!warned){toast("La voix n’est pas disponible sur cet appareil."); warned=true;} return null; }
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(clean(text));
+    u.lang=LANGS[lang].bcp; const v=voiceFor(lang); if(v) u.voice=v;
+    u.rate=S.rate;
+    if(onend){u.onend=onend; u.onerror=onend;}
+    window.speechSynthesis.speak(u);
+    if(!v&&voices.length&&!warned){toast("Aucune voix "+LANGS[lang].name.toLowerCase()+" installée : voir Progrès › Voix."); warned=true;}
+    return u;
+  }catch(e){return null;}
+}
+
+/* ================= ICÔNES ================= */
+const ICON={
+  speaker:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>',
+  back:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  close:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  play:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"/></svg>',
+  learn:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M3 5.5C3 4.7 3.7 4 4.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5h-5A1.5 1.5 0 0 1 3 16z"/><path d="M21 5.5c0-.8-.7-1.5-1.5-1.5H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h5A1.5 1.5 0 0 0 21 16z"/></svg>',
+  cards:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><rect x="7" y="3" width="13" height="16" rx="2.2"/><path d="M4 7v11.5A2.5 2.5 0 0 0 6.5 21H15"/></svg>',
+  quiz:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.2 9.6"/></svg>',
+  prog:'<svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg>'
+};
+
+/* ================= RENDU : BRIQUES ================= */
+function tx(text,lang,cls){return `<span class="tx tx-${lang}${cls?" "+cls:""}" lang="${LANGS[lang].html}">${esc(text)}</span>`;}
+function sayBtn(text,lang,label){return `<button class="say" data-act="say" data-t="${esc(text)}" data-l="${lang}" aria-label="${esc(label||"Écouter")}">${ICON.speaker}</button>`;}
+function bigWord(text,lang,avail,max){
+  avail=avail||300; max=max||110;
+  const chars=Array.from(text);
+  if(lang!=="en"&&chars.length<=6&&!/[\s…\/?？!！。、,，~]/.test(text)){
+    const c=Math.min(max,Math.floor(avail/chars.length));
+    return `<div class="cells" lang="${LANGS[lang].html}" style="--c:${c}px">${chars.map(ch=>`<span class="cell tx-${lang}" style="--c:${c}px"><span>${esc(ch)}</span></span>`).join("")}</div>`;
+  }
+  const n=chars.length;
+  const fs=lang==="en"?(n<=8?46:n<=14?36:n<=24?28:22):(n<=10?32:n<=16?27:22);
+  return `<div class="bigtext tx-${lang}" lang="${LANGS[lang].html}" style="font-size:${fs}px">${lang==="en"?`<span class="copy">${esc(text)}</span>`:esc(text)}</div>`;
+}
+function subhead(title,meta){return `<div class="subhead"><button class="iconbtn" data-act="back" aria-label="Retour">${ICON.back}</button><div><h2>${esc(title)}</h2>${meta?`<p>${meta}</p>`:""}</div></div>`;}
+function noteBox(text){return text?`<div class="note"><span><b>Bon à savoir</b> · ${esc(text)}</span></div>`:"";}
+function themeGlyph(t,lang){let best=null; t.items.slice(0,8).forEach(e=>{const w=e[lang].w; if(!best||Array.from(w).length<Array.from(best).length) best=w;}); return best;}
+
+/* ================= HEADER & NAV ================= */
+function renderHeader(){
+  const lang=S.lang;
+  $("#top").innerHTML=`<div class="brand"><span class="seal" aria-hidden="true">言</span><span class="brand-name">Polyglotte <span>de poche</span></span>
+    <span class="brand-xp"><span><b>${S.xp}</b> XP</span><span><b>${streak()}</b> j de série</span></span></div>
+    <div class="langs" role="group" aria-label="Langue étudiée">${ORDER.map(l=>`<button class="lang-btn" data-act="lang" data-l="${l}" aria-pressed="${l===lang}" style="--c:var(--${l})"><span class="n tx-${l}" lang="${LANGS[l].html}">${LANGS[l].native}</span><small>${LANGS[l].name}</small></button>`).join("")}</div>`;
+}
+function renderNav(){
+  const t=[["learn","Leçons",ICON.learn],["review","Cartes",ICON.cards],["quiz","Quiz",ICON.quiz],["progress","Progrès",ICON.prog]];
+  $("#tabs").innerHTML=`<div class="tabs-in">${t.map(x=>`<button class="tab" data-act="tab" data-tab="${x[0]}" ${UI.tab===x[0]?'aria-current="page"':""}>${x[2]}<span>${x[1]}</span></button>`).join("")}</div>`;
+}
+
+/* ================= LEÇONS ================= */
+function renderLearn(){
+  const s=UI.learn.screen;
+  if(s==="theme") return renderTheme(UI.learn.id);
+  if(s==="phrases") return renderPhrases(UI.learn.id);
+  if(s==="dialogue") return renderDialogue(UI.learn.id);
+  if(s==="grammar") return renderGrammar(+UI.learn.id);
+  if(s==="writing") return renderWriting();
+  return renderHome();
+}
+function renderHome(){
+  const lang=S.lang, L=LANGS[lang], st=langStats(lang), g=GREET[lang];
+  const txp=todayXP(), pct=Math.min(100,Math.round(txp/GOAL*100));
+  const dueN=Math.min(40,dueIds(lang).length), newN=freshItems(lang,NEW_PER_DAY).length;
+  const nameMark=lang==="en"?`<div class="bigtext" style="font-size:34px"><span class="copy">English</span></div>`:bigWord(L.native,lang,180,58);
+  const wm=WRITING_META[lang];
+  let h=installHint()+`<section class="card hero">
+    <div class="hero-top">${nameMark}
+      <div class="hero-greet"><p class="eyebrow">${L.name} · dire bonjour</p>
+        <button class="greet" data-act="say" data-t="${esc(g.w)}" data-l="${lang}">${tx(g.w,lang)}${ICON.speaker}</button>
+        ${g.rom?`<p class="rom">${esc(g.rom)}</p>`:""}</div>
+    </div>
+    <div class="stats3"><div><b>${st.known}</b><span>maîtrisés</span></div><div><b>${st.learning}</b><span>en cours</span></div><div><b>${TOTAL}</b><span>mots et phrases</span></div></div>
+    <div class="goal"><div class="goal-l"><span>Objectif du jour</span><span>${Math.min(txp,GOAL)} / ${GOAL} XP</span></div><div class="pbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
+    <button class="btn primary block" data-act="startReview" data-src="daily">Révision du jour <span class="badge">${dueN+newN}</span></button>
+    <p class="muted" style="font-size:12.5px;text-align:center;margin-top:-6px">${dueN} à revoir · ${newN} nouveaux</p>
+  </section>`;
+
+  h+=`<section><div class="sec"><h2>Écriture</h2><span>${L.name}</span></div>
+    <button class="card write-card" data-act="go" data-screen="writing"><span class="wg">${lang==="en"?`<span class="bigtext" style="font-size:30px"><span class="copy">th</span></span>`:`<span class="cell tx-${lang}" style="--c:64px" lang="${L.html}"><span>${wm.g}</span></span>`}</span>
+    <span><h3>${wm.t}</h3><p>${wm.d}</p></span>${ICON.chev}</button></section>`;
+
+  h+=`<section><div class="sec"><h2>Kit de voyage</h2><span>${PHRASE_ALL.length} phrases</span></div>
+    <ul class="navlist">${PHRASES.map(c=>{const v=V(c.items[0],lang); return `<li><button class="navitem" data-act="go" data-screen="phrases" data-id="${c.id}"><span class="k">${c.items.length}</span><span class="t"><b>${esc(c.name)}</b><span lang="${L.html}">${esc(v.w)}</span></span>${ICON.chev}</button></li>`;}).join("")}</ul>
+    <div class="card" style="margin-top:10px"><p class="eyebrow">Numéros d’urgence · ${EMERG[lang].c}</p><div class="emerg">${EMERG[lang].n.map(x=>`<div><b>${x[0]}</b><span>${esc(x[1])}</span></div>`).join("")}</div></div>
+  </section>`;
+
+  const tile=t=>{
+    const known=t.items.filter(e=>lvl(lang,e.id)===2).length, p=Math.round(known/t.items.length*100);
+    return `<button class="tile" data-act="go" data-screen="theme" data-id="${t.id}"><span class="tile-glyph tx tx-${lang}" lang="${L.html}">${esc(themeGlyph(t,lang))}</span><span class="tile-name">${esc(t.name)}</span><span class="tile-meta">${t.items.length} mots</span><span class="mini"><i style="width:${p}%"></i></span></button>`;};
+  h+=`<section><div class="sec"><h2>Vocabulaire</h2><span>${THEMES.length} thèmes · ${VOCAB_ALL.length} mots</span></div>${GROUPS.map(g=>`<h3 class="grp">${esc(g[0])}</h3><div class="tiles">${g[1].map(id=>tile(THEMES.find(t=>t.id===id))).join("")}</div>`).join("")}</section>`;
+
+  h+=`<section><div class="sec"><h2>Conversations</h2><span>${DLG_ORDER.length} dialogues</span></div><ul class="navlist">${DIALOGUES[lang].map(d=>`<li><button class="navitem" data-act="go" data-screen="dialogue" data-id="${d.id}"><span class="t"><b>${esc(dlgTitle(lang,d.id))}</b><span lang="${L.html}">${esc(d.L[0].t)}</span></span>${ICON.chev}</button></li>`).join("")}</ul></section>`;
+
+  h+=`<section><div class="sec"><h2>Grammaire</h2><span>${GRAMMAR[lang].length} leçons</span></div><ul class="navlist">${GRAMMAR[lang].map((g,i)=>`<li><button class="navitem" data-act="go" data-screen="grammar" data-id="${i}"><span class="k">${i+1}</span><span class="t"><b lang="${L.html}">${esc(g.t)}</b></span>${ICON.chev}</button></li>`).join("")}</ul></section>`;
+  return h;
+}
+function isStandalone(){try{return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;}catch(e){return false;}}
+function installHint(){
+  if(isStandalone()||S.hideHint) return "";
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  const how=ios?"Dans Safari : Partager (dans le menu ••• sur les iPhone récents) › « Sur l’écran d’accueil », avec « Ouvrir comme app web » activé."
+               :"Dans Chrome : menu ⋮ › « Installer l’application » ou « Ajouter à l’écran d’accueil ».";
+  return `<div class="note" style="flex-direction:column;gap:10px"><span><b>Installer l’appli</b> · ${how} Ensuite, elle marche sans internet.</span><button class="btn small ghost" data-act="hideHint" style="align-self:flex-start">C’est fait</button></div>`;
+}
+function wordRow(e,lang,stack){
+  const v=V(e,lang), r=reading(v,lang), l=lvl(lang,e.id);
+  const dot=`<span class="lvl ${l===2?"l2":l===1?"l1":""}" title="${l===2?"Maîtrisé":l===1?"En cours":"Nouveau"}"></span>`;
+  if(stack) return `<li class="row stack" data-act="say" data-t="${esc(v.say)}" data-l="${lang}">${sayBtn(v.say,lang)}<div><div class="row-w">${tx(v.w,lang)}</div>${r?`<div class="row-r">${esc(r)}</div>`:""}<div class="row-fr">${esc(v.fr)}</div></div>${dot}</li>`;
+  return `<li class="row" data-act="say" data-t="${esc(v.say)}" data-l="${lang}">${sayBtn(v.say,lang)}<div><div class="row-w">${tx(v.w,lang)}</div>${r?`<div class="row-r">${esc(r)}</div>`:""}</div><div class="row-fr">${esc(v.fr)}</div>${dot}</li>`;
+}
+function renderTheme(id){
+  const t=THEMES.find(x=>x.id===id)||THEMES[0], lang=S.lang;
+  const known=t.items.filter(e=>lvl(lang,e.id)===2).length;
+  return subhead(t.name,`${t.items.length} mots · ${known} maîtrisés`)
+   +noteBox(t.note[lang])
+   +`<div class="actions"><button class="btn primary" data-act="startReview" data-src="${t.id}">${ICON.cards} Cartes</button><button class="btn" data-act="startQuiz" data-src="${t.id}">${ICON.quiz} Quiz</button></div>`
+   +`<ul class="list">${t.items.map(e=>wordRow(e,lang,false)).join("")}</ul>`
+   +`<p class="muted" style="font-size:12.5px;text-align:center">Touche une ligne pour l’écouter.</p>`;
+}
+function renderPhrases(id){
+  const c=PHRASES.find(x=>x.id===id)||PHRASES[0], lang=S.lang;
+  return subhead("Kit de voyage",`${c.name} · ${c.items.length} phrases`)
+   +`<div class="chips" role="group" aria-label="Catégories">${PHRASES.map(x=>`<button class="chip" data-act="go" data-screen="phrases" data-id="${x.id}" aria-pressed="${x.id===c.id}">${esc(x.name)}</button>`).join("")}</div>`
+   +`<div class="actions"><button class="btn primary" data-act="startReview" data-src="p-${c.id}">${ICON.cards} Cartes</button><button class="btn" data-act="startQuiz" data-src="p-${c.id}">${ICON.quiz} Quiz</button></div>`
+   +`<ul class="list">${c.items.map(e=>wordRow(e,lang,true)).join("")}</ul>`
+   +(c.id==="urgences"?`<div class="card"><p class="eyebrow">Numéros d’urgence · ${EMERG[lang].c}</p><div class="emerg">${EMERG[lang].n.map(x=>`<div><b>${x[0]}</b><span>${esc(x[1])}</span></div>`).join("")}</div></div>`:"");
+}
+function renderDialogue(id){
+  const lang=S.lang, L=LANGS[lang], d=DIALOGUES[lang].find(x=>x.id===id)||DIALOGUES[lang][0];
+  const meta=DLG_META[d.id], role=d.b||meta.b, i=DLG_ORDER.indexOf(d.id);
+  const prev=DLG_ORDER[i-1], next=DLG_ORDER[i+1];
+  return subhead(dlgTitle(lang,d.id),`Conversation ${i+1} sur ${DLG_ORDER.length} · ${d.L.length} répliques`)
+   +`<div class="dlg-tools">${lang!=="en"?`<button class="chip" data-act="dlgToggle" data-k="rom" aria-pressed="${UI.dlg.rom}">${L.rom.charAt(0).toUpperCase()+L.rom.slice(1)}</button>`:""}<button class="chip" data-act="dlgToggle" data-k="tr" aria-pressed="${UI.dlg.tr}">Traduction</button>
+     <button class="btn small primary" data-act="dlgPlay" id="dlgPlay">${seq?ICON.stop+" Arrêter":ICON.play+" Tout écouter"}</button></div>`
+   +`<div class="dlg">${d.L.map((l,k)=>`<div class="bubble ${l.s==="A"?"me":"them"}" data-line="${k}">
+      <div class="who"><span>${l.s==="A"?"Vous":esc(role)}</span>${sayBtn(l.t,lang,"Écouter la réplique")}</div>
+      <p class="b-tx">${tx(l.t,lang)}</p>${UI.dlg.rom&&l.r?`<p class="b-rom">${esc(l.r)}</p>`:""}${UI.dlg.tr?`<p class="b-fr">${esc(l.fr)}</p>`:""}</div>`).join("")}</div>`
+   +noteBox(d.note)
+   +`<div class="pager">${prev?`<button class="btn ghost" data-act="go" data-screen="dialogue" data-id="${prev}">${ICON.back} ${esc(dlgTitle(lang,prev))}</button>`:"<span></span>"}${next?`<button class="btn ghost" data-act="go" data-screen="dialogue" data-id="${next}">${esc(dlgTitle(lang,next))} ${ICON.chev}</button>`:""}</div>`;
+}
+function renderGrammar(i){
+  const lang=S.lang, L=LANGS[lang], list=GRAMMAR[lang]; i=Math.max(0,Math.min(list.length-1,i||0)); const g=list[i];
+  return subhead(`Leçon ${i+1} sur ${list.length}`,"Grammaire · "+L.name)
+   +`<article class="card lesson"><h2 lang="${L.html}">${esc(g.t)}</h2><p class="expl">${esc(g.d)}</p><div class="pattern tx-${lang}" lang="${L.html}">${esc(g.p)}</div></article>`
+   +`<section><div class="sec"><h2>Exemples</h2><span>touche pour écouter</span></div><ul class="card ex" style="padding-block:4px">${g.ex.map(x=>`<li>${sayBtn(x[0],lang)}<div><div class="e1">${tx(x[0],lang)}</div>${x[1]?`<div class="e2">${esc(x[1])}</div>`:""}<div class="e3">${esc(x[2])}</div></div></li>`).join("")}</ul></section>`
+   +noteBox(g.tip)
+   +`<div class="pager">${i>0?`<button class="btn ghost" data-act="go" data-screen="grammar" data-id="${i-1}">${ICON.back} Leçon ${i}</button>`:"<span></span>"}${i<list.length-1?`<button class="btn primary" data-act="go" data-screen="grammar" data-id="${i+1}">Leçon ${i+2} ${ICON.chev}</button>`:""}</div>`;
+}
+function toneSvg(t){
+  const y=l=>36-(l-1)*7.5; let shape="";
+  if(t===1) shape=`<polyline class="tp" points="6,${y(5)} 54,${y(5)}"/>`;
+  else if(t===2) shape=`<polyline class="tp" points="6,${y(3)} 54,${y(5)}"/>`;
+  else if(t===3) shape=`<polyline class="tp" points="6,${y(2)} 28,${y(1)} 54,${y(4)}"/>`;
+  else if(t===4) shape=`<polyline class="tp" points="6,${y(5)} 54,${y(1)}"/>`;
+  else shape=`<circle class="td" cx="30" cy="${y(2.5)}" r="3.5"/>`;
+  return `<svg viewBox="0 0 60 42" class="tone" aria-hidden="true">${[1,2,3,4,5].map(l=>`<line class="tl" x1="2" x2="58" y1="${y(l)}" y2="${y(l)}"/>`).join("")}${shape}</svg>`;
+}
+function renderWriting(){
+  const lang=S.lang, wm=WRITING_META[lang];
+  let h=subhead(wm.t,wm.d);
+  if(lang==="ja"){
+    const kata=UI.wtab==="kata", main=Array.from(kata?KATA:HIRA), dak=Array.from(kata?KATA_D:HIRA_D);
+    h+=`<div class="chips"><button class="chip" data-act="wtab" data-v="hira" aria-pressed="${!kata}">Hiragana ひらがな</button><button class="chip" data-act="wtab" data-v="kata" aria-pressed="${kata}">Katakana カタカナ</button></div>`;
+    h+=noteBox(kata?"Les katakana servent surtout aux mots étrangers : コーヒー (kōhī, café), ホテル (hoteru, hôtel). Le trait ー allonge la voyelle.":"Les hiragana écrivent les mots japonais et les terminaisons grammaticales. Touche un signe pour l’entendre.");
+    h+=`<div class="kana-grid">${main.map((c,k)=>c==="・"?`<span class="kana empty" aria-hidden="true"></span>`:`<button class="kana" data-act="say" data-t="${c}" data-l="ja"><span class="g tx tx-ja" lang="ja">${c}</span><small>${GOJ_ROM[k]}</small></button>`).join("")}</div>`;
+    h+=`<section><div class="sec"><h2>Sons voisés</h2><span>avec ゛ et ゜</span></div><div class="kana-grid">${dak.map((c,k)=>`<button class="kana" data-act="say" data-t="${c}" data-l="ja"><span class="g tx tx-ja" lang="ja">${c}</span><small>${DAK_ROM[k]}</small></button>`).join("")}</div></section>`;
+    h+=`<div class="card tips"><div class="tipc"><h3>Petits signes, grands effets</h3><p>Un petit っ double la consonne suivante : きって (kitte, timbre). Les petits ゃ ゅ ょ forment des combinaisons : きゃ (kya), しゅ (shu), ちょ (cho).</p>
+      <div class="chips">${[["きって","kitte"],["きゃ","kya"],["しゅ","shu"],["ちょ","cho"]].map(x=>`<button class="chip" data-act="say" data-t="${x[0]}" data-l="ja">${ICON.speaker}<span class="tx-ja" lang="ja">${x[0]}</span> ${x[1]}</button>`).join("")}</div></div></div>`;
+  } else if(lang==="ko"){
+    const kb=UI.kb, syl=String.fromCharCode(0xAC00+(KO_I.indexOf(kb.i)*21+KO_V.indexOf(kb.v))*28+KO_F.indexOf(kb.f));
+    const rr=(R_I[kb.i]||"")+(R_V[kb.v]||"")+(R_F[kb.f]||"");
+    h+=noteBox("Une syllabe coréenne = consonne + voyelle (+ consonne finale), rangées dans un carré. ㅇ en début de syllabe est muet : 아 se lit « a ».");
+    h+=`<section class="card builder"><p class="eyebrow">Atelier de syllabes</p>
+      <div class="res"><div class="cells" lang="ko"><span class="cell tx-ko" style="--c:96px"><span>${syl}</span></span></div>
+        <div><p style="font-size:22px;font-weight:700">${esc(kb.i)} + ${esc(kb.v)}${kb.f?" + "+esc(kb.f):""}</p><p class="rom">se lit « ${esc(rr)} »</p><div style="margin-top:8px">${sayBtn(syl,"ko","Écouter la syllabe")}</div></div></div>
+      <div><p class="lab">Consonne de départ</p><div class="jchips">${B_I.map(j=>`<button class="jchip" data-act="kb" data-k="i" data-v="${j}" aria-pressed="${kb.i===j}">${j}</button>`).join("")}</div></div>
+      <div><p class="lab">Voyelle</p><div class="jchips">${B_V.map(j=>`<button class="jchip" data-act="kb" data-k="v" data-v="${j}" aria-pressed="${kb.v===j}">${j}</button>`).join("")}</div></div>
+      <div><p class="lab">Consonne finale (batchim)</p><div class="jchips">${B_F.map(j=>`<button class="jchip" data-act="kb" data-k="f" data-v="${j}" aria-pressed="${kb.f===j}">${j||"aucune"}</button>`).join("")}</div></div>
+      <p class="muted" style="font-size:13px">Exemple : 한 + 국 = 한국 (Hanguk, la Corée).</p></section>`;
+    h+=`<section><div class="sec"><h2>Consonnes</h2><span>14 + 5 doubles</span></div><div class="jamo-grid">${KO_CONS.map(x=>`<button class="kana" data-act="say" data-t="${x[2]}" data-l="ko"><span class="g tx tx-ko" lang="ko">${x[0]}</span><small>${x[1]}</small></button>`).join("")}</div></section>`;
+    h+=`<section><div class="sec"><h2>Voyelles</h2><span>10 + 7 composées</span></div><div class="jamo-grid">${KO_VOW.map(x=>`<button class="kana" data-act="say" data-t="${x[2]}" data-l="ko"><span class="g tx tx-ko" lang="ko">${x[0]}</span><small>${x[1]}</small></button>`).join("")}</div></section>`;
+    h+=`<div class="card tips"><div class="tipc"><h3>Les voyelles piégeuses</h3><p>ㅓ (eo) est un « o » ouvert, comme dans « porte ». ㅗ (o) est un « ô » fermé. ㅡ (eu) se dit lèvres étirées, sans les arrondir. ㅜ (u) se dit « ou ».</p></div></div>`;
+  } else if(lang==="zh"){
+    h+=noteBox("Chaque syllabe a un ton, et le ton change le sens. Écoute les cinq versions de « ma » ci-dessous.");
+    h+=`<div class="tones">${TONES.map(t=>`<button class="tone-card" data-act="say" data-t="${t.c}" data-l="zh"><span class="tc-top"><span class="tc-p">${t.p}</span>${toneSvg(t.t)}</span><span class="tc-c tx tx-zh" lang="zh-CN">${t.c} <span class="muted" style="font-size:14px;font-family:var(--f-ui);font-weight:500">${esc(t.fr)}</span></span><p>${t.t?(t.t===1?"1er":t.t+"e")+" ton · ":"Ton neutre · "}${esc(t.d)}</p></button>`).join("")}</div>`;
+    h+=`<section><div class="sec"><h2>Sons difficiles du pinyin</h2><span>pour francophones</span></div><ul class="list">${PINYIN.map(p=>`<li class="row stack" data-act="say" data-t="${p[2]}" data-l="zh">${sayBtn(p[2],"zh")}<div><div class="row-w"><b style="font-family:var(--f-ui)">${esc(p[0])}</b> · ${tx(p[2],"zh")} <span class="muted" style="font-size:14px">${esc(p[3])}, ${esc(p[4])}</span></div><div class="row-fr">${esc(p[1])}</div></div><span></span></li>`).join("")}</ul></section>`;
+    h+=`<section><div class="sec"><h2>12 caractères de base</h2><span>dans leur 田字格</span></div><div class="chars">${HANZI.map(c=>`<button class="charc" data-act="say" data-t="${c[0]}" data-l="zh"><span class="cell tx-zh" lang="zh-CN" style="--c:62px"><span>${c[0]}</span></span><b>${c[1]}</b><small>${esc(c[2])}</small></button>`).join("")}</div></section>`;
+  } else {
+    h+=`<div class="tips">${EN_TIPS.map(t=>`<div class="card tipc"><h3>${esc(t.t)}</h3><p>${esc(t.d)}</p><div class="chips">${t.ex.map(w=>`<button class="chip" data-act="say" data-t="${esc(w.toLowerCase())}" data-l="en">${ICON.speaker}${esc(w)}</button>`).join("")}</div></div>`).join("")}</div>`;
+  }
+  return h;
+}
+
+/* ================= CARTES (RÉVISION) ================= */
+function srcItems(src){
+  if(src==="all") return VOCAB_ALL.slice();
+  if(src==="phrases") return PHRASE_ALL.slice();
+  if(src.indexOf("p-")===0){const c=PHRASES.find(c=>"p-"+c.id===src); return c?c.items.slice():[];}
+  const t=THEMES.find(t=>t.id===src); return t?t.items.slice():[];
+}
+function srcName(src){
+  if(src==="daily") return "Révision du jour"; if(src==="all") return "Tout le vocabulaire"; if(src==="phrases") return "Kit de voyage"; if(src==="mist") return "Erreurs à revoir";
+  if(src.indexOf("p-")===0){const c=PHRASES.find(c=>"p-"+c.id===src); return c?"Voyage · "+c.name:"";}
+  const t=THEMES.find(t=>t.id===src); return t?t.name:"";
+}
+function startReview(src,ids){
+  let items;
+  if(ids) items=ids.map(id=>ALL[id]).filter(Boolean);
+  else if(src==="daily") items=dailyQueue(S.lang);
+  else items=shuffle(srcItems(src)).slice(0,20);
+  if(!items.length){toast("Rien à réviser ici pour l’instant."); return;}
+  UI.review={src,q:items.map(e=>e.id),i:0,flipped:false,ok:0,bad:0,re:{},done:false};
+  UI.tab="review"; render(); toTop();
+}
+function renderReviewSetup(){
+  const lang=S.lang, dueN=Math.min(40,dueIds(lang).length), newN=freshItems(lang,NEW_PER_DAY).length;
+  return `<section class="card setup-hero"><p class="eyebrow">Cartes · ${LANGS[lang].name}</p><h2>Révision du jour</h2>
+      <p>Les mots reviennent de plus en plus espacés quand tu les connais : demain, puis dans 2, 4, 8 et 16 jours. Un mot est « maîtrisé » après 3 bonnes réponses espacées.</p>
+      <div class="stats3"><div><b>${dueN}</b><span>à revoir</span></div><div><b>${newN}</b><span>nouveaux</span></div><div><b>${dueN+newN}</b><span>cartes</span></div></div>
+      <button class="btn primary block" data-act="startReview" data-src="daily">Commencer</button></section>
+    <section><div class="sec"><h2>Sens des cartes</h2></div><div class="dirs">
+      <button class="dir" data-act="dir" data-v="tf" aria-pressed="${S.dir==="tf"}"><b><span class="tx-${lang}" lang="${LANGS[lang].html}">${LANGS[lang].native}</span> → Français</b><span>Je lis, je traduis</span></button>
+      <button class="dir" data-act="dir" data-v="ft" aria-pressed="${S.dir==="ft"}"><b>Français → <span class="tx-${lang}" lang="${LANGS[lang].html}">${LANGS[lang].native}</span></b><span>Je cherche le mot</span></button></div></section>
+    <section><div class="sec"><h2>Réviser un thème</h2><span>20 cartes max.</span></div><div class="chips">
+      ${THEMES.map(t=>`<button class="chip" data-act="startReview" data-src="${t.id}">${esc(t.name)}</button>`).join("")}
+      ${PHRASES.map(c=>`<button class="chip" data-act="startReview" data-src="p-${c.id}">Voyage · ${esc(c.name)}</button>`).join("")}</div></section>`;
+}
+function renderReview(){
+  const R=UI.review; if(!R) return renderReviewSetup();
+  const lang=S.lang;
+  if(R.done){
+    return `<section class="card result"><p class="eyebrow">${esc(srcName(R.src))}</p><div class="score">${R.ok}<small> / ${R.ok+R.bad}</small></div><h2>Séance terminée</h2>
+      <p>${R.bad?`${R.bad} carte${R.bad>1?"s":""} reviendr${R.bad>1?"ont":"a"} dès aujourd’hui. Les autres sont programmées pour plus tard.`:"Sans faute ! Ces mots reviendront dans quelques jours."}</p>
+      <div class="actions" style="width:100%"><button class="btn" data-act="endReview">Terminer</button><button class="btn primary" data-act="startReview" data-src="${R.src==="mist"?"daily":R.src}">Encore</button></div></section>`;
+  }
+  const id=R.q[R.i], e=ALL[id], v=V(e,lang), r=reading(v,lang), pct=Math.round(R.i/R.q.length*100);
+  const tf=S.dir==="tf";
+  let face;
+  if(!R.flipped){
+    face=tf?`<span class="hint">Que veut dire…</span>${bigWord(v.w,lang)}${S.rom&&r?`<p class="reading">${esc(r)}</p>`:""}`
+           :`<span class="hint">Comment dit-on en ${LANGS[lang].L}…</span><p class="fr-big">${esc(v.fr)}</p>`;
+  } else {
+    face=`<span class="hint">Réponse</span>${bigWord(v.w,lang)}${r?`<p class="reading">${esc(r)}</p>`:""}<p class="meaning">${esc(v.fr)}</p>${sayBtn(v.say,lang)}`;
+  }
+  return `<div class="session-top"><button class="iconbtn" data-act="endReview" aria-label="Quitter la séance">${ICON.close}</button><div class="pbar"><i style="width:${pct}%"></i></div><span class="cnt">${R.i+1} / ${R.q.length}</span></div>
+    <div class="flash ${R.flipped?"turn":""}" data-act="${R.flipped?"say":"flip"}" ${R.flipped?`data-t="${esc(v.say)}" data-l="${lang}"`:""} role="button" tabindex="0" aria-label="${R.flipped?"Écouter":"Retourner la carte"}">${face}</div>
+    ${R.flipped?`<div class="grade"><button class="btn bad" data-act="again">À revoir</button><button class="btn good" data-act="know">Je savais</button></div>`
+               :`<button class="btn primary block" data-act="flip" style="min-height:52px">Retourner la carte</button>`}
+    <p class="muted" style="font-size:12.5px;text-align:center">${esc(srcName(R.src))} · sois honnête avec toi-même, c’est ce qui fait marcher la mémoire.</p>`;
+}
+
+/* ================= QUIZ ================= */
+function startQuiz(src,ids){
+  let pool=ids?ids.map(id=>ALL[id]).filter(Boolean):srcItems(src);
+  if(!pool.length){toast("Pas assez de mots pour un quiz."); return;}
+  const base=shuffle(pool.slice()).slice(0,10);
+  const types=["read","write"]; if(canSpeak(S.lang)) types.push("listen");
+  const qs=base.map(e=>{const type=types[Math.floor(Math.random()*types.length)]; return {id:e.id,type,opts:shuffle([e.id].concat(distractors(e,pool,type))),ans:null};});
+  UI.quiz={src,qs,i:0,score:0,done:false,wrong:[]}; UI.quizSrc=src;
+  UI.tab="quiz"; render(); toTop(); autoListen();
+}
+function distractors(e,pool,type){
+  const lang=S.lang, ve=V(e,lang), out=[], seen=new Set();
+  const key=x=>type==="write"?x.w:x.fr; seen.add(key(ve));
+  const wider=shuffle((e.kind==="p"?PHRASE_ALL:VOCAB_ALL).filter(x=>x.id!==e.id));
+  const cands=shuffle(pool.filter(x=>x.id!==e.id)).concat(wider);
+  for(const x of cands){
+    const vx=V(x,lang), k=key(vx);
+    if(seen.has(k)) continue;
+    if(vx.w===ve.w||vx.fr===ve.fr) continue;
+    if(type==="listen"&&(vx.say===ve.say||(vx.rom&&vx.rom===ve.rom))) continue;
+    seen.add(k); out.push(x.id); if(out.length===3) break;
+  }
+  return out;
+}
+function autoListen(){const Q=UI.quiz; if(!Q||Q.done) return; const q=Q.qs[Q.i]; if(q&&q.type==="listen"&&q.ans===null) setTimeout(()=>speak(V(ALL[q.id],S.lang).say,S.lang),250);}
+function renderQuizSetup(){
+  const lang=S.lang, src=UI.quizSrc, qs=S.quiz[lang];
+  const opt=(s,label)=>`<button class="chip" data-act="quizSrc" data-v="${s}" aria-pressed="${src===s}">${esc(label)}</button>`;
+  return `<section class="card setup-hero"><p class="eyebrow">Quiz · ${LANGS[lang].name}</p><h2>10 questions, 4 choix</h2>
+      <p>Trois types de questions se mélangent : lire le mot et trouver le sens, retrouver le mot à partir du français${canSpeak(lang)?", et écouter puis choisir":""}. Chaque bonne réponse rapporte 2 XP.</p>
+      <div class="stats3"><div><b>${qs.n}</b><span>quiz joués</span></div><div><b>${qs.best}</b><span>meilleur score</span></div><div><b>${S.xp}</b><span>XP total</span></div></div>
+      <button class="btn primary block" data-act="startQuiz" data-src="${src}">Lancer · ${esc(srcName(src))}</button></section>
+    <section><div class="sec"><h2>Sur quoi ?</h2></div><div class="chips">${opt("all","Tout le vocabulaire")}${opt("phrases","Kit de voyage")}${THEMES.map(t=>opt(t.id,t.name)).join("")}</div></section>
+    ${canSpeak(lang)?"":`<div class="note"><span><b>Pas de questions d’écoute</b> · aucune voix ${esc(LANGS[lang].name.toLowerCase())} n’est installée sur cet appareil. Voir l’onglet Progrès.</span></div>`}`;
+}
+function renderQuiz(){
+  const Q=UI.quiz; if(!Q) return renderQuizSetup();
+  const lang=S.lang, L=LANGS[lang];
+  if(Q.done){
+    const n=Q.qs.length, s=Q.score;
+    const msg=s===n?"Parfait. Tu peux passer à un autre thème.":s>=n*.7?"Très bien ! Encore un ou deux tours et c’est acquis.":s>=n*.4?"C’est un début. Une séance de cartes sur ces mots aidera beaucoup.":"Ces mots sont encore nouveaux. Passe d’abord par les cartes, puis retente.";
+    return `<section class="card result"><p class="eyebrow">${esc(srcName(Q.src))}</p><div class="score">${s}<small> / ${n}</small></div><h2>Quiz terminé</h2><p>${msg}</p>
+      <div class="actions" style="width:100%">${Q.wrong.length?`<button class="btn" data-act="mistakes">Revoir mes ${Q.wrong.length} erreur${Q.wrong.length>1?"s":""}</button>`:""}<button class="btn primary" data-act="startQuiz" data-src="${Q.src==="mist"?"all":Q.src}">Rejouer</button></div>
+      <button class="btn ghost block" data-act="endQuiz">Retour</button></section>`;
+  }
+  const q=Q.qs[Q.i], e=ALL[q.id], v=V(e,lang), r=reading(v,lang), answered=q.ans!==null, ok=q.ans===q.id;
+  let prompt;
+  if(q.type==="read") prompt=`<p class="q">Que veut dire…</p>${bigWord(v.w,lang,280,96)}${S.rom&&r?`<p class="reading muted">${esc(r)}</p>`:""}`;
+  else if(q.type==="write") prompt=`<p class="q">Comment dit-on en ${L.L}…</p><p class="fr-big" style="font-size:26px;font-weight:700">${esc(v.fr)}</p>`;
+  else prompt=`<p class="q">Écoute et choisis le sens</p><button class="bigplay" data-act="say" data-t="${esc(v.say)}" data-l="${lang}" aria-label="Réécouter">${ICON.speaker}</button><p class="muted" style="font-size:13px">Touche pour réécouter</p>`;
+  const opts=q.opts.map(oid=>{
+    const vo=V(ALL[oid],lang); let cls="";
+    if(answered){ if(oid===q.id) cls="ok"; else if(oid===q.ans) cls="ko"; }
+    const inner=q.type==="write"?`<span class="o-tx">${tx(vo.w,lang)}</span>${S.rom&&reading(vo,lang)?`<small>${esc(reading(vo,lang))}</small>`:""}`:esc(vo.fr);
+    return `<button class="opt ${cls}" data-act="answer" data-id="${oid}" ${answered?"disabled":""}>${inner}</button>`;
+  }).join("");
+  const fb=answered?`<div class="fb ${ok?"ok":"ko"}"><p class="fb-h">${ok?"Bonne réponse !":"Pas tout à fait."}</p><div class="fb-w">${sayBtn(v.say,lang)}<span>${tx(v.w,lang)}</span></div>${r?`<p class="muted" style="font-size:13px">${esc(r)}</p>`:""}<p>${esc(v.fr)}</p></div>
+      <button class="btn primary block" data-act="next" style="min-height:52px">${Q.i+1<Q.qs.length?"Question suivante":"Voir le résultat"}</button>`:"";
+  return `<div class="session-top"><button class="iconbtn" data-act="endQuiz" aria-label="Quitter le quiz">${ICON.close}</button><div class="pbar"><i style="width:${Math.round((Q.i+(answered?1:0))/Q.qs.length*100)}%"></i></div><span class="cnt">${Q.i+1} / ${Q.qs.length} · ${Q.score} pt${Q.score>1?"s":""}</span></div>
+    <div class="prompt">${prompt}</div><div class="opts">${opts}</div>${fb}`;
+}
+
+/* ================= PROGRÈS ================= */
+function renderProgress(){
+  const txp=todayXP();
+  const days=[]; for(let k=6;k>=0;k--){const d=new Date(); d.setDate(d.getDate()-k); days.push({d,xp:S.days[dayKey(d)]||0,today:k===0});}
+  const max=Math.max(GOAL,...days.map(x=>x.xp));
+  const DN=["D","L","M","M","J","V","S"];
+  let h=`<section class="card"><p class="eyebrow">Cette semaine</p><div class="stats3" style="margin-top:10px"><div><b>${S.xp}</b><span>XP total</span></div><div><b>${streak()}</b><span>jours de série</span></div><div><b>${txp}</b><span>XP aujourd’hui</span></div></div>
+    <div class="week" aria-label="XP des 7 derniers jours">${days.map(x=>`<div class="wd"><span class="v">${x.xp||""}</span><span class="bar ${x.xp?"":"zero"} ${x.today?"today":""}" style="height:${x.xp?Math.max(6,Math.round(x.xp/max*90)):3}px"></span><small>${DN[x.d.getDay()]}</small></div>`).join("")}</div>
+    <p class="muted" style="font-size:12.5px;margin-top:8px">Objectif : ${GOAL} XP par jour. Une carte = 1 XP (2 si tu la savais), une bonne réponse au quiz = 2 XP.</p></section>`;
+  h+=`<section class="card"><p class="eyebrow">Par langue</p>${ORDER.map(l=>{const st=langStats(l), q=S.quiz[l]; const a=st.known/TOTAL*100, b=st.learning/TOTAL*100;
+    return `<div class="langrow"><div class="lh"><b><span class="tx-${l}" lang="${LANGS[l].html}">${LANGS[l].native}</span> · ${LANGS[l].name}</b><span>${st.known} / ${TOTAL}</span></div>
+      <div class="seg"><i style="width:${a}%;background:var(--${l})"></i><i style="width:${b}%;background:color-mix(in srgb,var(--${l}) 38%,transparent)"></i></div>
+      <span class="muted" style="font-size:12.5px">${st.known} maîtrisés · ${st.learning} en cours · quiz : ${q.n} joué${q.n>1?"s":""}, record ${q.best}/10</span></div>`;}).join("")}
+    <div class="legend"><span><i style="background:var(--acc)"></i>maîtrisé</span><span><i style="background:color-mix(in srgb,var(--acc) 38%,transparent)"></i>en cours</span><span><i style="background:var(--chip)"></i>pas encore vu</span></div></section>`;
+  h+=`<section class="card"><p class="eyebrow">Réglages</p>
+    <div class="setting"><span class="sl">Vitesse de la voix</span><div class="chips"><button class="chip" data-act="set" data-k="rate" data-v="0.9" aria-pressed="${S.rate>0.75}">Normale</button><button class="chip" data-act="set" data-k="rate" data-v="0.6" aria-pressed="${S.rate<=0.75}">Lente</button></div></div>
+    <div class="setting"><span class="sl">Aide à la lecture dans les exercices</span><span class="sd">Affiche le rōmaji, la romanisation ou le pinyin sur les cartes et dans le quiz.</span><div class="chips"><button class="chip" data-act="set" data-k="rom" data-v="1" aria-pressed="${S.rom}">Affichée</button><button class="chip" data-act="set" data-k="rom" data-v="0" aria-pressed="${!S.rom}">Masquée</button></div></div>
+    <div class="setting"><span class="sl">Lecture automatique</span><span class="sd">Prononce le mot quand tu retournes une carte ou réponds au quiz.</span><div class="chips"><button class="chip" data-act="set" data-k="auto" data-v="1" aria-pressed="${S.auto}">Oui</button><button class="chip" data-act="set" data-k="auto" data-v="0" aria-pressed="${!S.auto}">Non</button></div></div>
+    <div class="setting"><span class="sl">Voix du téléphone</span>
+      ${HAS_TTS?`<ul class="voices">${ORDER.map(l=>{const v=voiceFor(l); return `<li><span class="vn"><b>${LANGS[l].name}</b>${voices.length?(v?`<span class="okv">${esc(v.name)}</span>`:`<span class="kov">aucune voix trouvée</span>`):"détection…"}</span><button class="btn small" data-act="say" data-t="${esc(GREET[l].w)}" data-l="${l}">${ICON.speaker} Tester</button></li>`;}).join("")}</ul>
+      <span class="sd">Une voix manque ? Sur iPhone : Réglages › Accessibilité › Contenu énoncé › Voix. Sur Android : cherche « synthèse vocale » dans les Paramètres et installe la langue.</span>`:`<span class="sd">Ce navigateur ne propose pas de synthèse vocale. Ouvre l’appli dans Chrome ou Safari pour entendre les mots.</span>`}</div>
+    <div class="setting"><span class="sl">Ta progression</span><span class="sd">Elle est enregistrée sur ce téléphone, sans compte.</span>
+      <div class="danger">${UI.confirmReset?`<span style="font-size:14px;font-weight:600">Tout effacer, pour les 4 langues ?</span><button class="btn small" data-act="resetNo">Annuler</button><button class="btn small bad" data-act="resetYes">Oui, effacer</button>`:`<button class="btn small ghost" data-act="resetAsk">Réinitialiser la progression</button>`}</div></div>
+  </section>`;
+  return h;
+}
+
+/* ================= RENDU GLOBAL ================= */
+function render(){
+  $("#app").dataset.lang=S.lang;
+  renderHeader(); renderNav();
+  let h;
+  if(UI.tab==="learn") h=renderLearn();
+  else if(UI.tab==="review") h=renderReview();
+  else if(UI.tab==="quiz") h=renderQuiz();
+  else h=renderProgress();
+  $("#view").innerHTML=h;
+}
+function toTop(){try{window.scrollTo({top:0});}catch(e){window.scrollTo(0,0);}}
+let toastT;
+function toast(msg){const el=$("#toast"); el.textContent=msg; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{el.hidden=true;},2800);}
+
+/* Dialogue : lecture enchaînée */
+let seq=null;
+function markLine(i){document.querySelectorAll(".bubble").forEach((el,k)=>el.classList.toggle("speaking",k===i)); const el=document.querySelector('.bubble[data-line="'+i+'"]'); if(el){try{el.scrollIntoView({block:"nearest",behavior:"smooth"});}catch(e){}}}
+function updatePlayBtn(){const b=$("#dlgPlay"); if(b) b.innerHTML=seq?ICON.stop+" Arrêter":ICON.play+" Tout écouter";}
+function stopSeq(){if(!seq) return; seq=null; try{window.speechSynthesis.cancel();}catch(e){} markLine(-1); updatePlayBtn();}
+function stepSeq(){
+  if(!seq) return; const lines=seq.lines;
+  if(seq.i>=lines.length){stopSeq(); return;}
+  markLine(seq.i); const tok=++seq.tok, text=lines[seq.i].t;
+  const adv=()=>{if(seq&&seq.tok===tok){seq.tok++; seq.i++; setTimeout(stepSeq,450);}};
+  const u=speak(text,S.lang,adv); if(!u){stopSeq(); return;}
+  const per=S.lang==="en"?110:320; setTimeout(adv,(Array.from(text).length*per+4000)/S.rate);
+}
+
+/* ================= ACTIONS ================= */
+const A={
+  lang(b){stopSeq(); S.lang=b.dataset.l; save(); UI.review=null; UI.quiz=null; UI.confirmReset=false; render();},
+  tab(b){stopSeq(); UI.tab=b.dataset.tab; if(UI.tab==="learn"&&UI.learn.screen!=="home"&&b.getAttribute("aria-current")) UI.learn={screen:"home"}; UI.confirmReset=false; render(); toTop();},
+  go(b){stopSeq(); UI.learn={screen:b.dataset.screen,id:b.dataset.id}; UI.tab="learn"; render(); toTop();},
+  back(){stopSeq(); UI.learn={screen:"home"}; render(); toTop();},
+  say(b){if(seq) stopSeq(); speak(b.dataset.t,b.dataset.l||S.lang);},
+  wtab(b){UI.wtab=b.dataset.v; render();},
+  kb(b){UI.kb[b.dataset.k]=b.dataset.v; render(); const k=UI.kb; speak(String.fromCharCode(0xAC00+(KO_I.indexOf(k.i)*21+KO_V.indexOf(k.v))*28+KO_F.indexOf(k.f)),"ko");},
+  dlgToggle(b){UI.dlg[b.dataset.k]=!UI.dlg[b.dataset.k]; render();},
+  dlgPlay(){
+    if(seq){stopSeq(); return;}
+    const d=DIALOGUES[S.lang].find(x=>x.id===UI.learn.id)||DIALOGUES[S.lang][0];
+    seq={lines:d.L,i:0,tok:0}; updatePlayBtn(); stepSeq();
+  },
+  startReview(b){startReview(b.dataset.src);},
+  dir(b){S.dir=b.dataset.v; save(); render();},
+  flip(){const R=UI.review; if(!R||R.flipped) return; R.flipped=true; render(); if(S.auto) speak(V(ALL[R.q[R.i]],S.lang).say,S.lang);},
+  know(){const R=UI.review; grade(R.q[R.i],true); R.ok++; nextCard();},
+  again(){const R=UI.review, id=R.q[R.i]; grade(id,false); R.bad++; if(!R.re[id]){R.re[id]=1; R.q.push(id);} nextCard();},
+  endReview(){UI.review=null; render(); toTop();},
+  quizSrc(b){UI.quizSrc=b.dataset.v; render();},
+  startQuiz(b){startQuiz(b.dataset.src);},
+  answer(b){
+    const Q=UI.quiz, q=Q.qs[Q.i]; if(q.ans!==null) return;
+    q.ans=b.dataset.id; const ok=q.ans===q.id, p=S.prog[S.lang];
+    if(ok){Q.score++; addXP(2); if(!p[q.id]) p[q.id]={b:1,d:today()+1};}
+    else {Q.wrong.push(q.id); p[q.id]={b:0,d:today()};}
+    save(); render();
+    if(S.auto) speak(V(ALL[q.id],S.lang).say,S.lang);
+  },
+  next(){
+    const Q=UI.quiz; Q.i++;
+    if(Q.i>=Q.qs.length){Q.done=true; const st=S.quiz[S.lang]; st.n++; st.best=Math.max(st.best,Q.score); if(Q.score>=8) addXP(5); save();}
+    render(); toTop(); autoListen();
+  },
+  mistakes(){const Q=UI.quiz; const ids=Q.wrong.slice(); UI.quiz=null; startReview("mist",ids);},
+  endQuiz(){UI.quiz=null; render(); toTop();},
+  set(b){const k=b.dataset.k, v=b.dataset.v; if(k==="rate") S.rate=parseFloat(v); else S[k]=v==="1"; save(); render(); if(k==="rate") speak(GREET[S.lang].w,S.lang);},
+  hideHint(){S.hideHint=true; save(); render();},
+  resetAsk(){UI.confirmReset=true; render();},
+  resetNo(){UI.confirmReset=false; render();},
+  resetYes(){const keep={lang:S.lang,rate:S.rate,rom:S.rom,auto:S.auto,dir:S.dir}; S=Object.assign(defaults(),keep); save(); UI.confirmReset=false; UI.review=null; UI.quiz=null; render(); toast("Progression effacée.");}
+};
+function nextCard(){const R=UI.review; R.i++; R.flipped=false; if(R.i>=R.q.length) R.done=true; render();}
+
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-act]"); if(!b||b.disabled) return;
+  const f=A[b.dataset.act]; if(f) f(b,ev);
+});
+document.addEventListener("keydown",ev=>{
+  if(ev.key!=="Enter"&&ev.key!==" ") return;
+  const b=ev.target.closest('[role="button"][data-act]'); if(!b) return;
+  ev.preventDefault(); const f=A[b.dataset.act]; if(f) f(b,ev);
+});
+
+render();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}
+})();
+</script>
+</body>
+</html>
